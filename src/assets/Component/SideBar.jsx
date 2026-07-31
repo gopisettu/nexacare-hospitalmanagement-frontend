@@ -24,7 +24,7 @@ const MENU_CONFIG = {
 };
 
 function Sidebar() {
-  const items = MENU_CONFIG["ADMIN"] || [];
+  const items = MENU_CONFIG["PATIENT"] || [];
 
   return (
     <aside className="bg-dark text-white p-3" style={{ width: "220px" }}>
