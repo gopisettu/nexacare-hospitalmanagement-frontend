@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 
-const MENU_CONFIG = {
+const menu = {
   ADMIN: [
     { label: "Dashboard", path: "/admin/dashboard" },
     { label: "Patients", path: "/admin/patients" },
@@ -24,11 +24,11 @@ const MENU_CONFIG = {
 };
 
 function Sidebar() {
-  const items = MENU_CONFIG["PATIENT"] || [];
+  const items = menu["ADMIN"] || [];
 
   return (
     <aside className="bg-dark text-white p-3" style={{ width: "220px" }}>
-      <h5 className="mb-4">Pulse</h5>
+      <h5 className="mb-4">NEXE-CARE</h5>
       <ul className="nav flex-column">
         {items.map((item) => (
           <li className="nav-item mb-2" key={item.path}>

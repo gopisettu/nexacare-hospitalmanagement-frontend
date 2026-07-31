@@ -6,6 +6,9 @@ function DoctorAdmin() {
   const [doctor, setDoctor] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState({});
 
+  const [page,setPage]=useState(0)
+  const[size,setSize]=useState(8)
+
   async function onSelected(d) {
     const username = d.username;
     console.log("Doctor Username:", username);
@@ -21,7 +24,7 @@ function DoctorAdmin() {
       try {
         console.log("Inside getAllDoctors");
 
-        const api = "http://localhost:8080/api/doctor/get-allDoctor";
+        const api = `http://localhost:8080/api/doctor/get-allDoctor?page=${page}&size=${size}`;
         const res = await axios.get(api);
 
         console.log(res.data);
@@ -32,7 +35,7 @@ function DoctorAdmin() {
     }
 
     getAllDoctors();
-  }, []);
+  }, [page,size]);
 
   return (
     <div className="container">
@@ -40,7 +43,7 @@ function DoctorAdmin() {
 
       <div className="row">
         {doctor.map((d) => (
-          <div className="col-md-4 mb-3" key={d.id}>
+          <div className="col col -4 -md-4 mb-3" key={d.id}>
             <div className="card" style={{ width: "18rem" }}>
               <div className="card-body">
                 <h5 className="card-title">
@@ -71,6 +74,16 @@ function DoctorAdmin() {
             </div>
           </div>
         ))}
+        {/* Pagination */}
+<nav aria-label="Page navigation example">
+  <ul className="pagination justify-content-center">
+    <li className="page-item"><a className="page-link" onClick={()=>page>0?setPage(page-1):setPage(0)}>Previous</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(0)}>1</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(1)}>2</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(2)}>3</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(page+1) }>Next</a></li>
+  </ul>
+</nav>
 
         {/* Modal */}
         <div

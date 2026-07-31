@@ -6,6 +6,26 @@ function PatientAdmin(){
     const [patient,setPatient]=useState([]);
     const [selectedPatient,setSelectedPatient]=useState({});
 
+    const [page,setPage]=useState(0)
+    const[size,setSize]=useState(8)
+
+   const deletePatinet=async(pusername)=>{
+try{
+  console.log("In Delete")
+  const res = await axios.put(
+    `http://localhost:8080/api/executive/deActivatePatient-ByExecutive/${pusername}`
+  );
+
+}
+catch(err){
+
+  console.log(err)
+}
+    }
+    
+
+ 
+
      async function onSelected(p){
       const username=p.username;
       console.log("patient userName: "+username);
@@ -19,7 +39,7 @@ function PatientAdmin(){
 async function getAllPatients(){
 try{
   console.log("in side getAllPatient")
-    let api=`http://localhost:8080/api/patient/get-allPatient`;
+    let api=`http://localhost:8080/api/patient/get-allPatient?page=${page}&size=${size}`;
 const res=await axios.get(api)
 console.log(res.data)
 setPatient(res.data)
@@ -30,14 +50,16 @@ catch(err){
 }
 }
 getAllPatients()
-    },[])
+    },[page,size])
+
+
     return(
       
         <div className="container">
               <h2>Patient Admin</h2>
               <div className="row">
   {patient.map((p) => (
-    <div className="col-md-4 mb-3" key={p.id}>
+    <div className="col col -4 -md-4 mb-3" key={p.id}>
       <div className="card" style={{ width: "18rem" }}>
         <div className="card-body">
           <h5 className="card-title">
@@ -64,6 +86,21 @@ getAllPatients()
       </div>
     </div>
   ))}
+{/* Pagination */}
+<nav aria-label="Page navigation example">
+  <ul className="pagination justify-content-center">
+    <li className="page-item"><a className="page-link" onClick={()=>page>0?setPage(page-1):setPage(0)}>Previous</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(0)}>1</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(1)}>2</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(2)}>3</a></li>
+    <li className="page-item"><a className="page-link" onClick={()=>setPage(page+1) }>Next</a></li>
+  </ul>
+</nav>
+
+
+
+
+
 
 {/* 
 // <!-- Button trigger modal --> */}
@@ -72,7 +109,7 @@ getAllPatients()
 // </button> */}
 
 {/* <!-- Modal --> */}
-<div className="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div className="modal fade" id="exampleModal"  aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div className="modal-dialog">
     <div className="modal-content">
       <div className="modal-header">
@@ -118,15 +155,42 @@ getAllPatients()
 
 
 
+
       </div>
       <div className="modal-footer">
+
+      <button
+  type="button"
+  className="btn btn-danger"
+  onClick={() => deletePatinet(selectedPatient.username)}
+>
+  <i className="bi bi-trash-fill"></i>
+</button>
         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" className="btn btn-primary" >Save changes</button>
       </div>
+
+      <button >Show live toast</button>
+
+<div className="position-fixed bottom-0 end-0 p-3" >
+  <div id="liveToast" className="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div className="toast-header">
+    
+      <strong className="me-auto">Notification </strong>
+      <small>few mins ago</small>
+      <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div className="toast-body">
+     Patient is Deleted SuccessFully
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
 </div>
+
+
   
  
 

@@ -10,6 +10,7 @@ import Login from "./assets/Component/Login";
 import PatientAdmin from "./assets/Component/Admin/PatientAdmin";
 import DoctorAdmin from "./assets/Component/Admin/DoctorAdmin";
 import PatientProfile from "./assets/Component/Patient/PatientProfile";
+import Appointment from "./assets/Component/Patient/Appointment";
 
 function App() {
   return (
@@ -25,8 +26,10 @@ function App() {
           
               <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
               <Route path="/patient/dashboard" element={<PatientDashboard />} />
-              <Route path="/patient/appointments" element={<PatientDashboard />} />
+              {/* <Route path="/patient/appointments" element={<PatientDashboard />} /> */}
               <Route path="/patient/profile" element={<PatientProfile/>} />
+              <Route path="patient/appointments" element={<Appointment/>} />
+              
 
           </Route>
             
