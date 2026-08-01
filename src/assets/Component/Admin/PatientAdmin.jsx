@@ -14,6 +14,10 @@ function PatientAdmin(){
     const [page,setPage]=useState(0)
     const[size,setSize]=useState(8)
     const [editPatient, setEditPatient] = useState({});
+    const[searchData,setSearchData]=useState("");
+
+
+    const[filterOption,setFilterOption]=useState("")
 
     const onAddNewPatient=()=>{
       setSelectedPatient({});
@@ -99,24 +103,67 @@ catch(err){
         setEditPatient(patient);
         setNewUser(false) // Initialize editPatient with the selected patient's data
     }
+
+    // USEEFFECT
     useEffect(()=>{
-async function getAllPatients(){
-try{
-  console.log("in side getAllPatient")
-    let api=`http://localhost:8080/api/patient/get-allPatient?page=${page}&size=${size}`;
-const res=await axios.get(api)
-console.log(res.data)
-setPatient(res.data)
+      async function getAllPatients(){
+        try{
+          console.log("in side getAllPatient")
+            let api=`http://localhost:8080/api/patient/get-allPatient?page=${page}&size=${size}`;
+        const res=await axios.get(api)
+        console.log(res.data)
+        let filteredData = [...res.data];
 
-}
-catch(err){
-    console.log(err)
-}
-}
+        // Search
+        if (searchData.trim() !== "") {
+            const regex = new RegExp(searchData, "i");
+        
+            filteredData = filteredData.filter((p) =>
+                regex.test(p.firstName)
+            );
+        }
+        
+        // Filter
+        if (filterOption === "MALE") {
+            filteredData = filteredData.filter(
+                (p) => p.gender === "MALE"
+            );
+        }
+        
+        if (filterOption === "FEMALE") {
+            filteredData = filteredData.filter(
+                (p) => p.gender === "FEMALE"
+            );
+        }
+        
+       
+        
+        setPatient(filteredData);
+      
+        
+        }
+        catch(err){
+            console.log(err)
+        }
+        }
+
+
 getAllPatients()
-    },[page,size])
+    },[page,size,searchData,filterOption])
 
 
+    const getFilterAllPatient = (e) => {
+      setFilterOption(e.target.value);
+  };
+
+    function getSearchDate(e) {
+      setSearchData(e.target.value);
+  }
+  
+
+  
+
+   
     return(
       
         <div className="container">
@@ -124,67 +171,109 @@ getAllPatients()
               <div className="card shadow-sm mb-4">
     <div className="card-body">
 
-      <div className="row g-3">
+        <div className="row g-3 align-items-center">
 
-        {/* Search */}
-        <div className="col-md-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search Patient..."
-          />
+            {/* Search */}
+            <div className="col-lg-3 col-md-6">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="🔍 Search Patient..."
+                    value={searchData}
+                    onChange={getSearchDate}
+                />
+            </div>
+
+            {/* Filter */}
+            <div className="col-lg-2 col-md-6">
+            <select
+    className="form-select"
+    value={filterOption}
+    onChange={getFilterAllPatient}
+>
+    <option value="">All Patients</option>
+    <option value="MALE">Male</option>
+    <option value="FEMALE">Female</option>
+</select>
+            </div>
+
+            {/* Appointment Filter */}
+            <div className="col-lg-2 col-md-6">
+                <select className="form-select">
+                    <option value="">Appointments</option>
+                    <option value="TODAY">Today's</option>
+                    <option value="UPCOMING">Upcoming</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="PENDING">Pending</option>
+                </select>
+            </div>
+
+            {/* Sort */}
+            <div className="col-lg-2 col-md-6">
+                <select className="form-select" >
+                    <option value="">Sort By</option>
+                    <option value="NEWEST">Newest</option>
+                    <option value="OLDEST">Oldest</option>
+                    <option value="NAME_ASC">Name (A-Z)</option>
+                    <option value="NAME_DESC">Name (Z-A)</option>
+                </select>
+            </div>
+
         </div>
 
-        {/* Filter */}
-        <div className="col-md-2">
-          <select className="form-select">
-            <option>All Patients</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Active</option>
-            <option>Inactive</option>
-          </select>
-        </div>
+        <hr />
 
-        {/* Sort */}
-        <div className="col-md-2">
-          <select className="form-select">
-            <option>Sort By</option>
-            <option>Name</option>
-            <option>DOB</option>
-            <option>Newest</option>
-          </select>
-        </div>
+        <div className="row g-3">
 
-        {/* Add */}
-        <div className="col-md-2">
-          <button className="btn btn-success w-100"
-          data-bs-toggle="modal"
-          data-bs-target="#exampleModal"
-          onClick={() => {onAddNewPatient}}
-          >
-            + Add Patient
-          </button>
-        </div>
 
-        {/* Refresh */}
-        <div className="col-md-1">
-          <button className="btn btn-outline-primary w-100">
-            ↻
-          </button>
-        </div>
 
-        {/* Export */}
-        <div className="col-md-2">
-          <button className="btn btn-outline-dark w-100">
-            Export
-          </button>
-        </div>
+            {/* Date */}
+            <div className="col-lg-2 col-md-6">
+                <select className="form-select">
+                    <option value="">Date</option>
+                    <option value="TODAY">Today</option>
+                    <option value="THIS_WEEK">This Week</option>
+                    <option value="THIS_MONTH">This Month</option>
+                </select>
+            </div>
 
-      </div>
+            {/* Add */}
+            <div className="col-lg-2 col-md-6">
+                <button
+                    className="btn btn-success w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exampleModal"
+                    onClick={onAddNewPatient}
+                >
+                    + Add Patient
+                </button>
+            </div>
+
+            {/* Refresh */}
+            <div className="col-lg-2 col-md-6">
+                <button className="btn btn-outline-primary w-100">
+                    🔄 Refresh
+                </button>
+            </div>
+
+            {/* Reset */}
+            <div className="col-lg-2 col-md-6">
+                <button className="btn btn-outline-secondary w-100">
+                    Reset Filters
+                </button>
+            </div>
+
+            {/* Export */}
+            <div className="col-lg-2 col-md-6">
+                <button className="btn btn-outline-dark w-100">
+                    📥 Export
+                </button>
+            </div>
+
+        </div>
 
     </div>
-  </div>
+</div>
 
               {/* PatientCard */}
         <PatientCard
