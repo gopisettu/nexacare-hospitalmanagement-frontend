@@ -4,7 +4,8 @@ function PatientForm(
         handleChange,
         submitEditedForm,
         deletePatient,
-        selectedPatient
+        selectedPatient,
+        newUser
     }
 
 ){
@@ -19,6 +20,8 @@ function PatientForm(
       <input
         type="text"
         className="form-control"
+        name="id"
+        onChange={handleChange}
         value={editPatient.id || selectedPatient.id || ""}
         disabled
       />
@@ -32,9 +35,23 @@ function PatientForm(
         className="form-control"
         name="username"
         value={editPatient.username ||selectedPatient.username || ""}
-        disabled
+        onChange={handleChange}
+        disabled={!newUser}
       />
     </div>
+{newUser &&
+         <div className="col-md-6 mb-3">
+         <label className="form-label">TemporaryPassword</label>
+         <input
+           type="text"
+           className="form-control"
+           name="password"
+           value={editPatient.password ||selectedPatient.password || ""}
+           onChange={handleChange}
+           disabled={!newUser}
+         />
+       </div>
+    }
 
     {/* First Name */}
     <div className="col-md-6 mb-3">
@@ -44,6 +61,7 @@ function PatientForm(
         className="form-control"
         name="firstName"
         value={editPatient.firstName ||selectedPatient.firstName || ""}
+        
         onChange={handleChange}
       />
     </div>
@@ -70,9 +88,9 @@ function PatientForm(
         onChange={handleChange}
       >
         <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
+        <option value="MALE">Male</option>
+        <option value="FEMALE">Female</option>
+        <option value="OTHER">Other</option>
       </select>
     </div>
 
@@ -116,7 +134,7 @@ function PatientForm(
         <option value="B-">B-</option>
         <option value="AB+">AB+</option>
         <option value="AB-">AB-</option>
-        <option value="O+">O+</option>
+        <option value="O_NEGATIVE">O+</option>
         <option value="O-">O-</option>
       </select>
     </div>
@@ -183,7 +201,7 @@ function PatientForm(
     <input
   type="submit"
   className="btn btn-primary"
-  value="Save Changes"
+ value={newUser?"Add Patient":"Update Patient"}
 />
     <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
   </div>

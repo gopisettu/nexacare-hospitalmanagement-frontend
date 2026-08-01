@@ -5,26 +5,59 @@ import PatientForm from "../Patient/PatientForm";
 import PatientCard from "../Patient/PatientCard";
 import Pagination from "../HelperComponent/Pagination";
 function PatientAdmin(){
+
+  const [message,setMessage]=useState('')
+  const [show, setShow] = useState(false);
     const [patient,setPatient]=useState([]);
     const [selectedPatient,setSelectedPatient]=useState({});
-
+ const [newUser,setNewUser]=useState(true)
     const [page,setPage]=useState(0)
     const[size,setSize]=useState(8)
     const [editPatient, setEditPatient] = useState({});
-    const submitEditedForm=async(e)=>{
-      e.preventDefault();
-      try{
-        const res = await axios.put(
-          `http://localhost:8080/api/patient/update-patientProfile/${selectedPatient.username}`,
-          editPatient
-        );
-        console.log(res.data);
-        setSelectedPatient(res.data);
-      }
-      catch(err){
-        console.log(err)
-      }
+
+    const onAddNewPatient=()=>{
+      setSelectedPatient({});
+      setEditPatient({});
+      setNewUser(true);
+
     }
+
+    const submitEditedForm = async (e) => {
+      e.preventDefault();
+  
+      try {
+  
+          let res;
+  
+          if (newUser) {
+  console.log("In New User")
+  console.log(editPatient)
+              res = await axios.post(
+                  "http://localhost:8080/api/admin/addPatient-ByAdmin",
+                  editPatient
+              );
+              alert("Patient added successfully.");
+  
+          } else {
+  
+              res = await axios.put(
+                  `http://localhost:8080/api/patient/update-patientProfile/${selectedPatient.username}`,
+                  editPatient
+              );
+  
+          }
+  
+          console.log(res.data);
+          setSelectedPatient(res.data);
+  
+      } catch (err) {
+          console.log(err);
+          
+          setMessage(err.response?.data?.message || "Something went wrong.");
+          console.log(message)
+          setShow(true)
+      }
+  };
     const handleChange=(e)=>{
       e.preventDefault();
       const { name, value } = e.target;
@@ -63,7 +96,8 @@ catch(err){
         console.log(patient);
 
         setSelectedPatient(patient);
-        setEditPatient(patient); // Initialize editPatient with the selected patient's data
+        setEditPatient(patient);
+        setNewUser(false) // Initialize editPatient with the selected patient's data
     }
     useEffect(()=>{
 async function getAllPatients(){
@@ -124,7 +158,11 @@ getAllPatients()
 
         {/* Add */}
         <div className="col-md-2">
-          <button className="btn btn-success w-100">
+          <button className="btn btn-success w-100"
+          data-bs-toggle="modal"
+          data-bs-target="#exampleModal"
+          onClick={() => {onAddNewPatient}}
+          >
             + Add Patient
           </button>
         </div>
@@ -168,7 +206,7 @@ getAllPatients()
   <div className="modal-dialog">
     <div className="modal-content">
       <div className="modal-header">
-        <h1 className="modal-title fs-5" id="exampleModalLabel">Patient Details</h1>
+        <h1 className="modal-title fs-5" id="exampleModalLabel"> {newUser ? "Add Patient" : "Patient Details"}</h1>
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div className="modal-body">
@@ -178,6 +216,7 @@ getAllPatients()
         handleChange={handleChange}
         submitEditedForm={submitEditedForm}
         selectedPatient={selectedPatient}
+        newUser={newUser}
     />
          </div>
       <div className="modal-footer">
@@ -214,8 +253,37 @@ getAllPatients()
 
 </div>
 
+ {/* Form Validation Error */}
+{show && (
+  <div
+    className="toast show position-fixed top-0 end-0 m-3"
+    style={{ zIndex: 1055, minWidth: "320px" }}
+  >
+    <div className="toast-header bg-danger text-white">
+      <strong className="me-auto">Error</strong>
 
-  
+      {/* Close (X) Button */}
+      <button
+        type="button"
+        className="btn-close btn-close-white"
+        onClick={() => setShow(false)}
+      ></button>
+    </div>
+
+    <div className="toast-body">
+      {message}
+    </div>
+
+    <div className="toast-footer p-2 text-end">
+      <button
+        className="btn btn-secondary btn-sm"
+        onClick={() => setShow(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
  
 
 
