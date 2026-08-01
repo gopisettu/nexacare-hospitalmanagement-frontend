@@ -8,6 +8,29 @@ function PatientAdmin(){
 
     const [page,setPage]=useState(0)
     const[size,setSize]=useState(8)
+    const [editPatient, setEditPatient] = useState({});
+    const submitEditedForm=async(e)=>{
+      e.preventDefault();
+      try{
+        const res = await axios.put(
+          `http://localhost:8080/api/patient/update-patientProfile/${selectedPatient.username}`,
+          editPatient
+        );
+        console.log(res.data);
+        setSelectedPatient(res.data);
+      }
+      catch(err){
+        console.log(err)
+      }
+    }
+    const handleChange=(e)=>{
+      e.preventDefault();
+      const { name, value } = e.target;
+      setEditPatient((prevPatient) =>({
+        ...prevPatient,
+        [name]:value
+      }))
+    }
 
    const deletePatinet=async(pusername)=>{
 try{
@@ -15,6 +38,10 @@ try{
   const res = await axios.put(
     `http://localhost:8080/api/executive/deActivatePatient-ByExecutive/${pusername}`
   );
+
+  const toastLiveExample = document.getElementById('liveToast')
+  const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+  toastBootstrap.show()
 
 }
 catch(err){
@@ -34,6 +61,7 @@ catch(err){
         console.log(patient);
 
         setSelectedPatient(patient);
+        setEditPatient(patient); // Initialize editPatient with the selected patient's data
     }
     useEffect(()=>{
 async function getAllPatients(){
@@ -57,6 +85,7 @@ getAllPatients()
       
         <div className="container">
               <h2>Patient Admin</h2>
+              {/* PatientCard */}
               <div className="row">
   {patient.map((p) => (
     <div className="col col -4 -md-4 mb-3" key={p.id}>
@@ -97,17 +126,6 @@ getAllPatients()
   </ul>
 </nav>
 
-
-
-
-
-
-{/* 
-// <!-- Button trigger modal --> */}
-{/* // <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-//   Launch demo modal
-// </button> */}
-
 {/* <!-- Modal --> */}
 <div className="modal fade" id="exampleModal"  aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div className="modal-dialog">
@@ -118,40 +136,184 @@ getAllPatients()
       </div>
       <div className="modal-body">
       {/* Card */}
-      <div className="card" style={{ width: "18rem" }}>
-  <div className="card-header">
-    Featured
+      <form onSubmit={submitEditedForm}>
+  <div className="row">
+
+    {/* ID */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">ID</label>
+      <input
+        type="text"
+        className="form-control"
+        value={editPatient.id || selectedPatient.id || ""}
+        disabled
+      />
+    </div>
+
+    {/* Username */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Username</label>
+      <input
+        type="text"
+        className="form-control"
+        name="username"
+        value={editPatient.username ||selectedPatient.username || ""}
+        disabled
+      />
+    </div>
+
+    {/* First Name */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">First Name</label>
+      <input
+        type="text"
+        className="form-control"
+        name="firstName"
+        value={editPatient.firstName ||selectedPatient.firstName || ""}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Last Name */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Last Name</label>
+      <input
+        type="text"
+        className="form-control"
+        name="lastName"
+        value={editPatient.lastName ||selectedPatient.lastName || ""}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Gender */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Gender</label>
+      <select
+        className="form-select"
+        name="gender"
+        value={editPatient.gender ||selectedPatient.gender || ""}
+        onChange={handleChange}
+      >
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    {/* Date of Birth */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Date of Birth</label>
+      <input
+        type="date"
+        className="form-control"
+        name="dob"
+        value={editPatient.dob ||selectedPatient.dob || ""}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Aadhar Number */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Aadhar Number</label>
+      <input
+        type="text"
+        className="form-control"
+        name="aadharNumber"
+        value={editPatient.aadharNumber ||selectedPatient.aadharNumber || ""}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Blood Group */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Blood Group</label>
+      <select
+        className="form-select"
+        name="bloodGroup"
+        value={editPatient.bloodGroup ||selectedPatient.bloodGroup || ""}
+        onChange={handleChange}
+      >
+        <option value="">Select Blood Group</option>
+        <option value="A+">A+</option>
+        <option value="A-">A-</option>
+        <option value="B+">B+</option>
+        <option value="B-">B-</option>
+        <option value="AB+">AB+</option>
+        <option value="AB-">AB-</option>
+        <option value="O+">O+</option>
+        <option value="O-">O-</option>
+      </select>
+    </div>
+
+    {/* Phone */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Phone</label>
+      <input
+        type="text"
+        className="form-control"
+        name="phone"
+        value={editPatient.phone ||selectedPatient.phone || ""}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Email */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Email</label>
+      <input
+        type="email"
+        className="form-control"
+        name="email"
+        value={editPatient.email ||selectedPatient.email || ""}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Address */}
+    <div className="col-12 mb-3">
+      <label className="form-label">Address</label>
+      <textarea
+        className="form-control"
+        rows="3"
+        name="address"
+        value={editPatient.address ||selectedPatient.address || ""}
+        onChange={handleChange}
+      ></textarea>
+    </div>
+
+    {/* Allergies */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Allergies</label>
+      <input
+        type="text"
+        className="form-control"
+        name="allergies"
+        value={editPatient.allergies ||selectedPatient.allergies || ""}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Chronic Disease */}
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Chronic Disease</label>
+      <input
+        type="text"
+        className="form-control"
+        name="chronicDisease"
+        value={editPatient.chronicDisease ||selectedPatient.chronicDisease || ""}
+        onChange={handleChange}
+      />
+    </div>
+    <input
+  type="submit"
+  className="btn btn-primary"
+  value="Save Changes"
+/>
+    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
   </div>
-  <ul className="list-group list-group-flush">
-    
-
-  <p><strong>ID:</strong> {selectedPatient.id}</p>
-
-<p><strong>Username:</strong> {selectedPatient.username}</p>
-
-<p><strong>First Name:</strong> {selectedPatient.firstName}</p>
-
-<p><strong>Last Name:</strong> {selectedPatient.lastName}</p>
-
-<p><strong>Gender:</strong> {selectedPatient.gender}</p>
-
-<p><strong>Date of Birth:</strong> {selectedPatient.dob}</p>
-
-<p><strong>Aadhar Number:</strong> {selectedPatient.aadharNumber || "Not Available"}</p>
-
-<p><strong>Blood Group:</strong> {selectedPatient.bloodGroup}</p>
-
-<p><strong>Phone:</strong> {selectedPatient.phone}</p>
-
-<p><strong>Email:</strong> {selectedPatient.email}</p>
-
-<p><strong>Address:</strong> {selectedPatient.address}</p>
-
-<p><strong>Allergies:</strong> {selectedPatient.allergies || "None"}</p>
-
-<p><strong>Chronic Disease:</strong> {selectedPatient.chronicDisease || "None"}</p>
-  </ul>
-</div>
+</form>
 
 
 
@@ -162,18 +324,22 @@ getAllPatients()
       <button
   type="button"
   className="btn btn-danger"
+  id="liveToastBtn"
   onClick={() => deletePatinet(selectedPatient.username)}
 >
   <i className="bi bi-trash-fill"></i>
 </button>
-        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" className="btn btn-primary" >Save changes</button>
+        
+       
       </div>
 
-      <button >Show live toast</button>
+    </div>
+  </div>
+</div>
 
-<div className="position-fixed bottom-0 end-0 p-3" >
-  <div id="liveToast" className="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+{/* Toast */}
+<div className="position-fixed top-0 start-50 translate-middle-x" style={{ zIndex: 1080 }}>
+  <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div className="toast-header">
     
       <strong className="me-auto">Notification </strong>
@@ -181,13 +347,11 @@ getAllPatients()
       <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div className="toast-body">
-     Patient is Deleted SuccessFully
+     Patient: {selectedPatient.username} is Deleted SuccessFully
     </div>
   </div>
 </div>
-    </div>
-  </div>
-</div>
+
 </div>
 
 
