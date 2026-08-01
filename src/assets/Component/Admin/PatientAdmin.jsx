@@ -12,12 +12,15 @@ function PatientAdmin(){
     const [selectedPatient,setSelectedPatient]=useState({});
  const [newUser,setNewUser]=useState(true)
     const [page,setPage]=useState(0)
-    const[size,setSize]=useState(8)
+    const[size,setSize]=useState(50)
     const [editPatient, setEditPatient] = useState({});
     const[searchData,setSearchData]=useState("");
 
+    const [genderFilter, setGenderFilter] = useState("");
+    const [sortOption, setSortOption] = useState("");
+    const [bloodGroupFilter, setBloodGroupFilter] = useState("");
+    const [appointmentFilter, setAppointmentFilter] = useState("");
 
-    const[filterOption,setFilterOption]=useState("")
 
     const onAddNewPatient=()=>{
       setSelectedPatient({});
@@ -105,55 +108,53 @@ catch(err){
     }
 
     // USEEFFECT
-    useEffect(()=>{
-      async function getAllPatients(){
-        try{
-          console.log("in side getAllPatient")
-            let api=`http://localhost:8080/api/patient/get-allPatient?page=${page}&size=${size}`;
-        const res=await axios.get(api)
-        console.log(res.data)
-        let filteredData = [...res.data];
+    useEffect(() => {
+      async function getAllPatients() {
+        try {
+          console.log("in side getAllPatient");
+    
+          let api = `http://localhost:8080/api/patient/get-allPatient?page=${page}&size=${size}`;
+    
+          if (searchData.trim() !== "") {
+            api += `&search=${searchData}`;
+          }
+          if (genderFilter !== "") {
+            api += `&gender=${genderFilter}`;
+          }
+          if (bloodGroupFilter !== "") {
+            api += `&bloodGroup=${bloodGroupFilter}`;
+          }
+          if (appointmentFilter !== "") {
+            api += `&appointmentFilter=${appointmentFilter}`;
+          }
+          if (sortOption !== "") {
+            api += `&sortOption=${sortOption}`;
+          }
+    
+          const res = await axios.get(api);
+          console.log("API Response");
+          console.table(res.data);
+    
+          setPatient(res.data);
+    
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    
+      getAllPatients();
+    }, [page, size, searchData, genderFilter, sortOption, bloodGroupFilter, appointmentFilter]);
 
-        // Search
-        if (searchData.trim() !== "") {
-            const regex = new RegExp(searchData, "i");
-        
-            filteredData = filteredData.filter((p) =>
-                regex.test(p.firstName)
-            );
-        }
-        
-        // Filter
-        if (filterOption === "MALE") {
-            filteredData = filteredData.filter(
-                (p) => p.gender === "MALE"
-            );
-        }
-        
-        if (filterOption === "FEMALE") {
-            filteredData = filteredData.filter(
-                (p) => p.gender === "FEMALE"
-            );
-        }
-        
-       
-        
-        setPatient(filteredData);
-      
-        
-        }
-        catch(err){
-            console.log(err)
-        }
-        }
-
-
-getAllPatients()
-    },[page,size,searchData,filterOption])
-
-
-    const getFilterAllPatient = (e) => {
-      setFilterOption(e.target.value);
+    const getGenderFilter = (e) => {
+      setGenderFilter(e.target.value);
+  };
+  
+  const getSortOption = (e) => {
+      setSortOption(e.target.value);
+  };
+  
+  const getBloodGroupFilter = (e) => {
+      setBloodGroupFilter(e.target.value);
   };
 
     function getSearchDate(e) {
@@ -188,8 +189,8 @@ getAllPatients()
             <div className="col-lg-2 col-md-6">
             <select
     className="form-select"
-    value={filterOption}
-    onChange={getFilterAllPatient}
+    value={genderFilter}
+    onChange={getGenderFilter}
 >
     <option value="">All Patients</option>
     <option value="MALE">Male</option>
@@ -199,24 +200,74 @@ getAllPatients()
 
             {/* Appointment Filter */}
             <div className="col-lg-2 col-md-6">
-                <select className="form-select">
-                    <option value="">Appointments</option>
-                    <option value="TODAY">Today's</option>
-                    <option value="UPCOMING">Upcoming</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="PENDING">Pending</option>
-                </select>
-            </div>
+            <select
+    className="form-select"
+    value={appointmentFilter}
+    
+    onChange={(e) => {
+      console.log(e.target.value);
+      setAppointmentFilter(e.target.value);
+  }}
+>
+    <option value="">Appointments</option>
+
+    <option value="TODAY">Today's Appointment</option>
+
+    <option value="UPCOMING">Upcoming Appointment</option>
+
+    <option value="PENDING">Pending</option>
+
+    <option value="SCHEDULED">Scheduled</option>
+
+    <option value="CONFIRMED">Confirmed</option>
+
+    <option value="CHECKED_IN">Checked In</option>
+
+    <option value="IN_PROGRESS">In Progress</option>
+
+    <option value="COMPLETED">Completed</option>
+
+    <option value="CANCELLED">Cancelled</option>
+
+    <option value="RESCHEDULED">Rescheduled</option>
+
+    <option value="NO_SHOW">No Show</option>
+</select>
+</div>
 
             {/* Sort */}
             <div className="col-lg-2 col-md-6">
-                <select className="form-select" >
-                    <option value="">Sort By</option>
-                    <option value="NEWEST">Newest</option>
-                    <option value="OLDEST">Oldest</option>
-                    <option value="NAME_ASC">Name (A-Z)</option>
-                    <option value="NAME_DESC">Name (Z-A)</option>
+            <select
+    className="form-select"
+    value={sortOption}
+    onChange={getSortOption}
+>
+                    <option value="">Sort By Age</option>
+                    <option value="YOUNG">Young</option>
+                    <option value="OLD">Old</option>
+
                 </select>
+            </div>
+            <div className="col-lg-2 col-md-6">
+            <select
+    className="form-select"
+    value={bloodGroupFilter}
+    onChange={getBloodGroupFilter}
+>
+    <option value="">Sort By Blood Group</option>
+
+    <option value="A_POSITIVE">A+</option>
+    <option value="A_NEGATIVE">A-</option>
+
+    <option value="B_POSITIVE">B+</option>
+    <option value="B_NEGATIVE">B-</option>
+
+    <option value="AB_POSITIVE">AB+</option>
+    <option value="AB_NEGATIVE">AB-</option>
+
+    <option value="O_POSITIVE">O+</option>
+    <option value="O_NEGATIVE">O-</option>
+</select>
             </div>
 
         </div>

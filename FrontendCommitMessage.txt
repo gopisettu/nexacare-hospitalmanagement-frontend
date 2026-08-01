@@ -1,0 +1,16 @@
+Send filters as query params instead of filtering client-side
+
+Problem:
+- PatientAdmin.jsx was fetching a paginated list of patients from the backend, then filtering that already-paginated list in JavaScript (search regex, gender/bloodGroup checks, appointment status switch-case, age sort).
+- This meant filters only ever searched within the current page of results (e.g. 50 records), not the full dataset.
+- A patient matching the filter but sitting on page 2 or 3 was invisible to the user, since the frontend never fetched them.
+
+Fix:
+- Removed all client-side filtering and sorting logic from the useEffect block: the filteredData array, the search regex filter, the gender/bloodGroup filter blocks, the appointment status switch-case, and the YOUNG/OLD sort switch.
+- useEffect now builds the API URL by appending each active filter (search, gender, bloodGroup, appointmentFilter, sortOption) as a query parameter, only when the user has actually selected a value for it.
+- setPatient(res.data) is now called directly with the API response, since filtering and sorting are handled entirely by the backend.
+- Filter state (searchData, genderFilter, bloodGroupFilter, appointmentFilter, sortOption) still lives in React state and drives the useEffect dependency array, so changing any filter triggers a fresh backend fetch instead of a client-side re-filter.
+
+Result:
+- Every filter now searches the entire dataset, not just the current page.
+- Combined with the backend pagination fix, changing a filter or page number always returns accurate, non-duplicated results.
