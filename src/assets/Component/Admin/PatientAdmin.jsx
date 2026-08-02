@@ -4,6 +4,12 @@ import { getPatientByUsername } from "../Servises/PatientService";
 import PatientForm from "../Patient/PatientForm";
 import PatientCard from "../Patient/PatientCard";
 import Pagination from "../HelperComponent/Pagination";
+import { formatEnum, bloodGroupLabel} from "../HelperComponent/EnumUtility";
+import {
+  getGenders,
+  getBloodGroups,
+  getAppointmentStatus
+} from "../Servises/EnumService";
 function PatientAdmin(){
 
   const [message,setMessage]=useState('')
@@ -12,7 +18,7 @@ function PatientAdmin(){
     const [selectedPatient,setSelectedPatient]=useState({});
  const [newUser,setNewUser]=useState(true)
     const [page,setPage]=useState(0)
-    const[size,setSize]=useState(50)
+    const[size,setSize]=useState(8)
     const [editPatient, setEditPatient] = useState({});
     const[searchData,setSearchData]=useState("");
 
@@ -21,7 +27,10 @@ function PatientAdmin(){
     const [bloodGroupFilter, setBloodGroupFilter] = useState("");
     const [appointmentFilter, setAppointmentFilter] = useState("");
 
-
+    const [genders, setGenders] = useState([]);
+    const [bloodGroups, setBloodGroups] = useState([]);
+    const [appointmentStatus, setAppointmentStatus] = useState([]);
+    
     const onAddNewPatient=()=>{
       setSelectedPatient({});
       setEditPatient({});
@@ -143,8 +152,40 @@ catch(err){
       }
     
       getAllPatients();
+      loadEnums();
     }, [page, size, searchData, genderFilter, sortOption, bloodGroupFilter, appointmentFilter]);
 
+    const loadEnums = async () => {
+
+      try {
+  
+          const [
+              genderRes,
+              bloodRes,
+              appointmentRes
+          ] = await Promise.all([
+              getGenders(),
+              getBloodGroups(),
+              getAppointmentStatus()
+          ]);
+  
+          setGenders(genderRes.data);
+          setBloodGroups(bloodRes.data);
+          setAppointmentStatus(appointmentRes.data);
+  
+      } catch (err) {
+  
+          console.log(err);
+  
+      }
+    }
+    const refreshFilter = () => {
+      setSearchData("");
+      setGenderFilter("");
+      setSortOption("");
+      setBloodGroupFilter("");
+      setAppointmentFilter("");
+    }
     const getGenderFilter = (e) => {
       setGenderFilter(e.target.value);
   };
@@ -193,8 +234,16 @@ catch(err){
     onChange={getGenderFilter}
 >
     <option value="">All Patients</option>
-    <option value="MALE">Male</option>
-    <option value="FEMALE">Female</option>
+
+    {genders.map((gender) => (
+        <option
+            key={gender}
+            value={gender}
+        >
+            {formatEnum(gender)}
+        </option>
+    ))}
+
 </select>
             </div>
 
@@ -203,35 +252,19 @@ catch(err){
             <select
     className="form-select"
     value={appointmentFilter}
-    
-    onChange={(e) => {
-      console.log(e.target.value);
-      setAppointmentFilter(e.target.value);
-  }}
+    onChange={(e) => setAppointmentFilter(e.target.value)}
 >
     <option value="">Appointments</option>
 
-    <option value="TODAY">Today's Appointment</option>
+    {appointmentStatus.map((status) => (
+        <option
+            key={status}
+            value={status}
+        >
+            {formatEnum(status)}
+        </option>
+    ))}
 
-    <option value="UPCOMING">Upcoming Appointment</option>
-
-    <option value="PENDING">Pending</option>
-
-    <option value="SCHEDULED">Scheduled</option>
-
-    <option value="CONFIRMED">Confirmed</option>
-
-    <option value="CHECKED_IN">Checked In</option>
-
-    <option value="IN_PROGRESS">In Progress</option>
-
-    <option value="COMPLETED">Completed</option>
-
-    <option value="CANCELLED">Cancelled</option>
-
-    <option value="RESCHEDULED">Rescheduled</option>
-
-    <option value="NO_SHOW">No Show</option>
 </select>
 </div>
 
@@ -254,19 +287,17 @@ catch(err){
     value={bloodGroupFilter}
     onChange={getBloodGroupFilter}
 >
-    <option value="">Sort By Blood Group</option>
+    <option value="">Blood Group</option>
 
-    <option value="A_POSITIVE">A+</option>
-    <option value="A_NEGATIVE">A-</option>
+    {bloodGroups.map((group) => (
+        <option
+            key={group}
+            value={group}
+        >
+            {bloodGroupLabel[group]}
+        </option>
+    ))}
 
-    <option value="B_POSITIVE">B+</option>
-    <option value="B_NEGATIVE">B-</option>
-
-    <option value="AB_POSITIVE">AB+</option>
-    <option value="AB_NEGATIVE">AB-</option>
-
-    <option value="O_POSITIVE">O+</option>
-    <option value="O_NEGATIVE">O-</option>
 </select>
             </div>
 
@@ -278,15 +309,7 @@ catch(err){
 
 
 
-            {/* Date */}
-            <div className="col-lg-2 col-md-6">
-                <select className="form-select">
-                    <option value="">Date</option>
-                    <option value="TODAY">Today</option>
-                    <option value="THIS_WEEK">This Week</option>
-                    <option value="THIS_MONTH">This Month</option>
-                </select>
-            </div>
+           
 
             {/* Add */}
             <div className="col-lg-2 col-md-6">
@@ -302,14 +325,17 @@ catch(err){
 
             {/* Refresh */}
             <div className="col-lg-2 col-md-6">
-                <button className="btn btn-outline-primary w-100">
+                <button className="btn btn-outline-primary w-100"
+                onClick={() => window.location.reload()}
+                >
                     🔄 Refresh
                 </button>
             </div>
 
             {/* Reset */}
             <div className="col-lg-2 col-md-6">
-                <button className="btn btn-outline-secondary w-100">
+                <button className="btn btn-outline-secondary w-100"
+                onClick={refreshFilter}>
                     Reset Filters
                 </button>
             </div>
