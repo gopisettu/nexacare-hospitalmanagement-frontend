@@ -1,4 +1,10 @@
-function PatientCard({ patient, onSelected }) {
+function PatientCard({ 
+    patient,
+    onSelected,
+    selectedFiles,
+    setSelectedFiles,
+    uploadImage
+}) {
 
     return (
         <div className="container">
@@ -12,6 +18,17 @@ function PatientCard({ patient, onSelected }) {
                 >
     
                     <div className="card h-100 shadow-sm">
+                    {p.imageUrl && (
+                                    <img
+                                        src={`/ProductImages/${p.imageUrl.split("\\").pop()}`}
+                                        alt={p.title}
+                                        className="card-img-top"
+                                        style={{
+                                            height: "220px",
+                                            objectFit: "cover"
+                                        }}
+                                    />
+                                )}
     
                         <div className="card-body">
     
@@ -33,6 +50,23 @@ function PatientCard({ patient, onSelected }) {
                             >
                                 View Details
                             </button>
+                              <input
+                                        type="file"
+                                        className="form-control mb-2"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setSelectedFiles({
+                                                ...selectedFiles,
+                                                [p.id]: e.target.files[0],
+                                            })
+                                        }
+                                    />
+                            <button
+                                        className="btn btn-success w-100"
+                                        onClick={() => uploadImage(p.id)}
+                                    >
+                                        Upload Image
+                                    </button>
     
                         </div>
     

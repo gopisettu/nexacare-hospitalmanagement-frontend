@@ -30,7 +30,41 @@ function PatientAdmin(){
     const [genders, setGenders] = useState([]);
     const [bloodGroups, setBloodGroups] = useState([]);
     const [appointmentStatus, setAppointmentStatus] = useState([]);
+    const [selectedFiles, setSelectedFiles] = useState({});
     
+
+ // Upload product image
+ const uploadImage = async (patientId) => {
+  console.log(patientId)
+  const file = selectedFiles[patientId];
+
+  if (!file) {
+      alert("Please select an image.");
+      return;
+  }
+
+  try {
+      const formData = new FormData();
+      formData.append("pImage", file);
+
+      const res = await axios.put(
+          `http://localhost:8080/api/admin/image/upload/${patientId}`,
+          formData,
+        
+      );
+
+      alert("Image uploaded successfully!");
+      console.log(res.data);
+
+      // Refresh product list
+      // getAllProducts();
+
+  } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Failed to upload image.");
+  }
+};
+
     const onAddNewPatient=()=>{
       setSelectedPatient({});
       setEditPatient({});
@@ -116,40 +150,42 @@ catch(err){
         setNewUser(false) // Initialize editPatient with the selected patient's data
     }
 
+
+    async function getAllPatients() {
+      try {
+        console.log("in side getAllPatient");
+  
+        let api = `http://localhost:8080/api/patient/get-allPatient?page=${page}&size=${size}`;
+  
+        if (searchData.trim() !== "") {
+          api += `&search=${searchData}`;
+        }
+        if (genderFilter !== "") {
+          api += `&gender=${genderFilter}`;
+        }
+        if (bloodGroupFilter !== "") {
+          api += `&bloodGroup=${bloodGroupFilter}`;
+        }
+        if (appointmentFilter !== "") {
+          api += `&appointmentFilter=${appointmentFilter}`;
+        }
+        if (sortOption !== "") {
+          api += `&sortOption=${sortOption}`;
+        }
+  
+        const res = await axios.get(api);
+        console.log("API Response");
+        console.table(res.data);
+  
+        setPatient(res.data);
+  
+      } catch (err) {
+        console.log(err);
+      }
+    }
     // USEEFFECT
     useEffect(() => {
-      async function getAllPatients() {
-        try {
-          console.log("in side getAllPatient");
-    
-          let api = `http://localhost:8080/api/patient/get-allPatient?page=${page}&size=${size}`;
-    
-          if (searchData.trim() !== "") {
-            api += `&search=${searchData}`;
-          }
-          if (genderFilter !== "") {
-            api += `&gender=${genderFilter}`;
-          }
-          if (bloodGroupFilter !== "") {
-            api += `&bloodGroup=${bloodGroupFilter}`;
-          }
-          if (appointmentFilter !== "") {
-            api += `&appointmentFilter=${appointmentFilter}`;
-          }
-          if (sortOption !== "") {
-            api += `&sortOption=${sortOption}`;
-          }
-    
-          const res = await axios.get(api);
-          console.log("API Response");
-          console.table(res.data);
-    
-          setPatient(res.data);
-    
-        } catch (err) {
-          console.log(err);
-        }
-      }
+     
     
       getAllPatients();
       loadEnums();
@@ -353,11 +389,13 @@ catch(err){
 </div>
 
               {/* PatientCard */}
-        <PatientCard
-            key={patient.id}
-            patient={patient}
-            onSelected={onSelected}
-        />
+              <PatientCard
+    patient={patient}
+    onSelected={onSelected}
+    selectedFiles={selectedFiles}
+    setSelectedFiles={setSelectedFiles}
+    uploadImage={uploadImage}
+/>
         {/* Pagination */}
 <Pagination 
   page={page}
