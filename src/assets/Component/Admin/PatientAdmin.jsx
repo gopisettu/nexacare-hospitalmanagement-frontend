@@ -32,39 +32,24 @@ function PatientAdmin(){
     const [appointmentStatus, setAppointmentStatus] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState({});
     
-
- // Upload product image
- const uploadImage = async (patientId) => {
-  console.log(patientId)
-  const file = selectedFiles[patientId];
-
-  if (!file) {
-      alert("Please select an image.");
-      return;
-  }
-
-  try {
-      const formData = new FormData();
-      formData.append("pImage", file);
-
-      const res = await axios.put(
-          `http://localhost:8080/api/admin/image/upload/${patientId}`,
-          formData,
-        
-      );
-
-      alert("Image uploaded successfully!");
-      console.log(res.data);
-
-      // Refresh product list
-      // getAllProducts();
-
-  } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Failed to upload image.");
-  }
-};
-
+    // Upload patient image 
+    const uploadImage = async (patientId) => {
+       console.log(patientId) 
+       alert("patientId-inside upload image   "+patientId)
+       const file = selectedFiles[patientId];
+        if (!file) { alert("Please select an image.");
+         return; } 
+         try { const formData = new FormData(); 
+          formData.append("pImage", file); 
+          const res = await axios.put(`http://localhost:8080/api/admin/image/upload/${patientId}`, formData );
+           alert("Image uploaded successfully!"); 
+           console.log(res.data);
+            // Refresh product list 
+            // getAllProducts();
+           } catch (err) 
+           { console.error("Upload failed:", err);
+            alert("Failed to upload image."); } 
+          };
     const onAddNewPatient=()=>{
       setSelectedPatient({});
       setEditPatient({});
