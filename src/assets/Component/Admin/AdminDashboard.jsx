@@ -1,3 +1,4 @@
+import DashboardCharts from "./DashboardCharts";
 function AdminDashboard(){
     return (<>
    
@@ -140,6 +141,9 @@ function AdminDashboard(){
 
 
 </div>
+
+
+<DashboardCharts />
 </div>
         </>
     )

@@ -5,6 +5,7 @@ import DoctorCard from "../Doctor/DoctorCard";
 import Pagination from "../HelperComponent/Pagination";
 import DoctorModal from "../Doctor/DoctorModal";
 
+
 function DoctorAdmin() {
   const [doctor, setDoctor] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState({});
@@ -13,8 +14,22 @@ function DoctorAdmin() {
   const [page,setPage]=useState(0)
   const[size,setSize]=useState(8)
 
-  const [selectedFiles, setSelectedFiles] = useState({});
+  
 
+
+  const [searchData, setSearchData] = useState("");
+const [genderFilter, setGenderFilter] = useState("");
+const [departmentFilter, setDepartmentFilter] = useState("");
+const [specializationFilter, setSpecializationFilter] = useState("");
+const [sortOption, setSortOption] = useState("");
+const [appointmentFilter, setAppointmentFilter] = useState("");
+const [bloodGroupFilter, setBloodGroupFilter] = useState("");
+
+
+const [genders, setGenders] = useState([]);
+    const [bloodGroups, setBloodGroups] = useState([]);
+    const [appointmentStatus, setAppointmentStatus] = useState([]);
+    const [selectedFiles, setSelectedFiles] = useState({});
 
   const uploadImage = async (doctorId) => {
     console.log(doctorId) 
@@ -33,6 +48,13 @@ function DoctorAdmin() {
         { console.error("Upload failed:", err);
          alert("Failed to upload image."); } 
        };
+
+       const onAddNewPatient=()=>{
+        setSelectedPatient({});
+        setEditPatient({});
+        setNewUser(true);
+  
+      }
   const submitEditedForm=async(e)=>{
     e.preventDefault();
     try{
@@ -90,23 +112,243 @@ function DoctorAdmin() {
     async function getAllDoctors() {
       try {
         console.log("Inside getAllDoctors");
-
-        const api = `http://localhost:8080/api/doctor/get-allDoctor?page=${page}&size=${size}`;
+    
+        let api = `http://localhost:8080/api/doctor/get-allDoctor?page=${page}&size=${size}`;
+    
+        if (searchData.trim() !== "") {
+          api += `&search=${searchData}`;
+        }
+    
+        if (genderFilter !== "") {
+          api += `&gender=${genderFilter}`;
+        }
+    
+        if (departmentFilter !== "") {
+          api += `&department=${departmentFilter}`;
+        }
+    
+        if (specializationFilter !== "") {
+          api += `&specialization=${specializationFilter}`;
+        }
+    
+        if (sortOption !== "") {
+          api += `&sortOption=${sortOption}`;
+        }
+    
+        console.log(api);
+    
         const res = await axios.get(api);
-
-        console.log(res.data);
+    
+        console.log("API Response");
+        console.table(res.data);
+    
         setDoctor(res.data);
+    
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }
 
     getAllDoctors();
   }, [page,size]);
 
+  const loadEnums = async () => {
+
+    try {
+
+        const [
+            genderRes,
+            bloodRes,
+            appointmentRes
+        ] = await Promise.all([
+            getGenders(),
+            getBloodGroups(),
+            getAppointmentStatus()
+        ]);
+
+        setGenders(genderRes.data);
+        setBloodGroups(bloodRes.data);
+        setAppointmentStatus(appointmentRes.data);
+
+    } catch (err) {
+
+        console.log(err);
+
+    }
+  }
+  const refreshFilter = () => {
+    setSearchData("");
+    setGenderFilter("");
+    setSortOption("");
+    setBloodGroupFilter("");
+    setAppointmentFilter("");
+  }
+  const getGenderFilter = (e) => {
+    setGenderFilter(e.target.value);
+};
+
+const getSortOption = (e) => {
+    setSortOption(e.target.value);
+};
+
+const getBloodGroupFilter = (e) => {
+    setBloodGroupFilter(e.target.value);
+};
+
+  function getSearchDate(e) {
+    setSearchData(e.target.value);
+}
   return (
     <div className="container">
       <h2>Doctor Admin</h2>
+
+
+
+      <div className="row">
+
+
+      <div className="card shadow-sm mb-4">
+    <div className="card-body">
+
+        <div className="row g-3 align-items-center">
+
+            {/* Search */}
+            <div className="col-lg-3 col-md-6">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="🔍 Search Patient..."
+                    value={searchData}
+                    onChange={getSearchDate}
+                />
+            </div>
+
+            {/* Filter */}
+            <div className="col-lg-2 col-md-6">
+            <select
+    className="form-select"
+    value={genderFilter}
+    onChange={getGenderFilter}
+>
+    <option value="">All Patients</option>
+
+    {genders.map((gender) => (
+        <option
+            key={gender}
+            value={gender}
+        >
+            {formatEnum(gender)}
+        </option>
+    ))}
+
+</select>
+            </div>
+
+            {/* Appointment Filter */}
+            <div className="col-lg-2 col-md-6">
+            <select
+    className="form-select"
+    value={appointmentFilter}
+    onChange={(e) => setAppointmentFilter(e.target.value)}
+>
+    <option value="">Appointments</option>
+
+    {appointmentStatus.map((status) => (
+        <option
+            key={status}
+            value={status}
+        >
+            {formatEnum(status)}
+        </option>
+    ))}
+
+</select>
+</div>
+
+            {/* Sort */}
+            <div className="col-lg-2 col-md-6">
+            <select
+    className="form-select"
+    value={sortOption}
+    onChange={getSortOption}
+>
+                    <option value="">Sort By Age</option>
+                    <option value="YOUNG">Young</option>
+                    <option value="OLD">Old</option>
+
+                </select>
+            </div>
+            <div className="col-lg-2 col-md-6">
+            <select
+    className="form-select"
+    value={bloodGroupFilter}
+    onChange={getBloodGroupFilter}
+>
+    <option value="">Blood Group</option>
+
+    {bloodGroups.map((group) => (
+        <option
+            key={group}
+            value={group}
+        >
+            {bloodGroupLabel[group]}
+        </option>
+    ))}
+
+</select>
+            </div>
+
+        </div>
+
+        <hr />
+
+        <div className="row g-3">
+
+
+
+           
+
+            {/* Add */}
+            <div className="col-lg-2 col-md-6">
+                <button
+                    className="btn btn-success w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exampleModal"
+                    onClick={onAddNewPatient}
+                >
+                    + Add Patient
+                </button>
+            </div>
+
+            {/* Refresh */}
+            <div className="col-lg-2 col-md-6">
+                <button className="btn btn-outline-primary w-100"
+                onClick={() => window.location.reload()}
+                >
+                    🔄 Refresh
+                </button>
+            </div>
+
+            {/* Reset */}
+            <div className="col-lg-2 col-md-6">
+                <button className="btn btn-outline-secondary w-100"
+                onClick={refreshFilter}>
+                    Reset Filters
+                </button>
+            </div>
+
+            {/* Export */}
+            <div className="col-lg-2 col-md-6">
+                <button className="btn btn-outline-dark w-100">
+                    📥 Export
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+      </div>
 
       <div className="row">
       {doctor.map((d) => (
@@ -132,6 +374,7 @@ function DoctorAdmin() {
     deleteDoctor={deleteDoctor}
     selectedDoctor={selectedDoctor}
 />
+
         
          
         
