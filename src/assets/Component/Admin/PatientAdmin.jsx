@@ -31,25 +31,44 @@ function PatientAdmin(){
     const [bloodGroups, setBloodGroups] = useState([]);
     const [appointmentStatus, setAppointmentStatus] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState({});
+    const [toastMessage, setToastMessage] = useState("");
+
+const showToast = (msg) => {
+    setToastMessage(msg);
+    const toastEl = document.getElementById('liveToast');
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastEl);
+    toastBootstrap.show();
+};
     
     // Upload patient image 
     const uploadImage = async (patientId) => {
-       console.log(patientId) 
-       alert("patientId-inside upload image   "+patientId)
-       const file = selectedFiles[patientId];
-        if (!file) { alert("Please select an image.");
-         return; } 
-         try { const formData = new FormData(); 
-          formData.append("pImage", file); 
-          const res = await axios.put(`http://localhost:8080/api/admin/image/upload/${patientId}`, formData );
-           alert("Image uploaded successfully!"); 
-           console.log(res.data);
-            // Refresh product list 
-            // getAllProducts();
-           } catch (err) 
-           { console.error("Upload failed:", err);
-            alert("Failed to upload image."); } 
-          };
+      console.log(patientId);
+  
+      const file = selectedFiles[patientId];
+      if (!file) {
+          showToast("Please select an image.");
+          return;
+      }
+  
+      try {
+          const formData = new FormData();
+          formData.append("pImage", file);
+  
+          const res = await axios.put(
+              `http://localhost:8080/api/admin/image/upload/${patientId}`,
+              formData
+          );
+  
+          showToast("Image uploaded successfully!");
+          console.log(res.data);
+  
+          getAllPatients();
+  
+      } catch (err) {
+          console.error("Upload failed:", err);
+          showToast("Failed to upload image.");
+      }
+  };
     const onAddNewPatient=()=>{
       setSelectedPatient({});
       setEditPatient({});
@@ -58,41 +77,36 @@ function PatientAdmin(){
     }
 
     const submitEditedForm = async (e) => {
-      e.preventDefault();
-  
-      try {
-  
-          let res;
-  
-          if (newUser) {
-  console.log("In New User")
-  console.log(editPatient)
-              res = await axios.post(
-                  "http://localhost:8080/api/admin/addPatient-ByAdmin",
-                  editPatient
-              );
-              alert("Patient added successfully.");
-  
-          } else {
-  
-              res = await axios.put(
-                  `http://localhost:8080/api/patient/update-patientProfile/${selectedPatient.username}`,
-                  editPatient
-              );
-  
-          }
-  
-          console.log(res.data);
-          setSelectedPatient(res.data);
-  
-      } catch (err) {
-          console.log(err);
-          
-          setMessage(err.response?.data?.message || "Something went wrong.");
-          console.log(message)
-          setShow(true)
-      }
-  };
+    e.preventDefault();
+
+    try {
+        let res;
+
+        if (newUser) {
+            res = await axios.post(
+                "http://localhost:8080/api/admin/addPatient-ByAdmin",
+                editPatient
+            );
+            showToast("Patient added successfully.");
+
+        } else {
+            res = await axios.put(
+                `http://localhost:8080/api/patient/update-patientProfile/${selectedPatient.username}`,
+                editPatient
+            );
+            showToast("Patient updated successfully.");
+        }
+
+        console.log(res.data);
+        setSelectedPatient(res.data);
+        getAllPatients(); // refresh list to reflect the change
+
+    } catch (err) {
+        console.log(err);
+        setMessage(err.response?.data?.message || "Something went wrong.");
+        setShow(true);
+    }
+};
     const handleChange=(e)=>{
       e.preventDefault();
       const { name, value } = e.target;
@@ -102,23 +116,20 @@ function PatientAdmin(){
       }))
     }
 
-   const deletePatinet=async(pusername)=>{
-try{
-  console.log("In Delete")
-  const res = await axios.put(
-    `http://localhost:8080/api/executive/deActivatePatient-ByExecutive/${pusername}`
-  );
-
-  const toastLiveExample = document.getElementById('liveToast')
-  const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-  toastBootstrap.show()
-
-}
-catch(err){
-
-  console.log(err)
-}
-    }
+    const deletePatinet = async (pusername) => {
+      try {
+          console.log("In Delete");
+          const res = await axios.put(
+              `http://localhost:8080/api/executive/deActivatePatient-ByExecutive/${pusername}`
+          );
+  
+          showToast(`Patient: ${pusername} is Deleted Successfully`);
+          getAllPatients(); // refresh the list too, since one just got deactivated
+  
+      } catch (err) {
+          console.log(err);
+      }
+  };
     
 
  
@@ -426,16 +437,15 @@ catch(err){
 </div>
 
 {/* Toast */}
-<div className="position-fixed top-0 start-50 translate-middle-x" style={{ zIndex: 1080 }}>
+<div className="position-fixed top-0 start-0 p-3" style={{ zIndex: 1080 }}>
   <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div className="toast-header">
-    
-      <strong className="me-auto">Notification </strong>
-      <small>few mins ago</small>
+      <strong className="me-auto">Notification</strong>
+      <small>just now</small>
       <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div className="toast-body">
-     Patient: {selectedPatient.username} is Deleted SuccessFully
+      {toastMessage}
     </div>
   </div>
 </div>

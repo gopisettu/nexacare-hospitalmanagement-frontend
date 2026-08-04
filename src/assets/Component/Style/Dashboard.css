@@ -1,0 +1,35 @@
+body{
+    background:#F5F7FB;
+}
+
+.dashboard-page{
+    background:#F5F7FB;
+    min-height:100vh;
+}
+
+.card{
+    border:none;
+    border-radius:18px;
+    transition:.25s;
+}
+
+.card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 28px rgba(0,0,0,.08)!important;
+}
+
+.card-body{
+    padding:1.5rem;
+}
+
+.badge{
+    font-size:.75rem;
+}
+
+h2{
+    letter-spacing:-.5px;
+}
+
+.text-secondary{
+    color:#6B7280!important;
+}

@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react"
 import axios from 'axios'
 import { getPatientByUsername } from "../Servises/PatientService";
+import DashboardStats from "../Admin/DashboardCharts";
+import ReasonDistribution from "../Admin/ReasonDistribution";
+import TodayAppointments from "../Admin/TodayAppointments";
+import Medicines from "../Admin/Medicines";
 function PatientDashboard() {
 
     const [patient, setPatient] = useState(null);
     const [appointment, setAppointment] = useState([]);
+   
+const [medicines, setMedicines] = useState([]);
+const [reasonDistribution, setReasonDistribution] = useState({});
 
     useEffect(() => {
         let username= "ap@gmail.com";
@@ -34,108 +41,112 @@ getAllAppointment()
         return <h2>Loading...</h2>;
     }
     return (
-        <div className="container-fluid py-4 bg-light">
-    <div className="row">
-
-        {/* Left Side */}
-        <div className="col-lg-4 col-md-12 mb-4">
-
-            {/* Profile Card */}
-            <div className="card shadow rounded-4 h-100">
-                <div className="card-body text-center">
-
-                    <img
-                        src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                        className="rounded-circle mb-3"
-                        width="120"
-                        alt=""
-                    />
-
-                    <h3>{patient.firstName}</h3>
-
-                    <hr />
-
-                    <p><strong>Email</strong></p>
-                    <p>{patient.email}</p>
-
-                    <p><strong>DOB</strong></p>
-                    <p>{patient.dob}</p>
-
-                    <p><strong>Address</strong></p>
-                    <p>{patient.address}</p>
-
-                </div>
-            </div>
-
-        </div>
-
-        {/* Right Side */}
-        <div className="col-lg-8 col-md-12">
-
-            <div className="card shadow rounded-4">
-
-                <div className="card-header bg-primary text-white">
-                    <h4 className="mb-0">Appointments</h4>
-                </div>
-
-                <div className="card-body">
-
-                    <div className="row">
-
-                        {appointment.length === 0 ? (
-                            <div className="text-center">
-                                No Appointments
+        <div className="container-fluid py-4">
+        
+            {/* Profile */}
+        
+            <div className="row mb-4">
+        
+                <div className="col-lg-12">
+        
+                    <div className="card shadow rounded-4">
+        
+                        <div className="card-body d-flex align-items-center">
+        
+                            <img
+                                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                                className="rounded-circle me-4"
+                                width="100"
+                                alt=""
+                            />
+        
+                            <div>
+        
+                                <h2 className="fw-bold">
+                                    Welcome Back,
+                                    <span className="text-primary">
+                                        {" "}
+                                        {patient.firstName}
+                                    </span>
+                                </h2>
+        
+                                <p className="text-muted mb-0">
+                                    {patient.address}
+                                </p>
+        
                             </div>
-                        ) : (
-
-                            appointment.map((a) => (
-
-                                <div
-                                    className="col-md-6 mb-3"
-                                    key={a.appointmentId}
-                                >
-
-                                    <div className="card border-0 shadow-sm h-100">
-
-                                        <div className="card-body">
-
-                                            <h5 className="text-primary">
-                                                Dr. {a.doctorName}
-                                            </h5>
-
-                                            <hr />
-
-                                            <p>
-                                                <strong>Date:</strong><br />
-                                                {a.appointmentDate}
-                                            </p>
-
-                                            <p>
-                                                <strong>Time:</strong><br />
-                                                {a.appointmentTime}
-                                            </p>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            ))
-
-                        )}
-
+        
+                        </div>
+        
                     </div>
-
+        
                 </div>
-
+        
             </div>
-
+        
+            {/* Dashboard Cards */}
+        
+            <DashboardStats
+  cards={[
+    {
+      title: "Visits",
+      value: appointment.length,
+      icon: "bi-calendar-check",
+      color: "#7c4dff",
+      bg: "#efe8ff",
+      data: [1,2,3,4,5,6,7],
+    },
+    {
+      title: "Medications",
+      value: medicines.length,
+      icon: "bi-capsule",
+      color: "#ff9800",
+      bg: "#fff2df",
+      data: [1,1,2,2,3,4,5],
+    },
+    {
+      title: "Upcoming",
+      value: appointment.filter(a => a.appointmentStatus === "SCHEDULED").length,
+      icon: "bi-clock-history",
+      color: "#22c55e",
+      bg: "#e9fff2",
+      data: [0,1,1,2,2,3,4],
+    },
+  ]}
+/>
+        
+            <div className="row g-4 mt-2">
+        
+                <div className="col-lg-4">
+        
+                    <ReasonDistribution
+                        title="Reason Distribution"
+                        data={reasonDistribution}
+                    />
+        
+                </div>
+        
+                <div className="col-lg-4">
+        
+                    <TodayAppointments
+                        title="Appointments"
+                        appointments={appointment}
+                    />
+        
+                </div>
+        
+                <div className="col-lg-4">
+        
+                    <Medicines
+                        title="Medications"
+                        medicines={medicines}
+                    />
+        
+                </div>
+        
+            </div>
+        
         </div>
-
-    </div>
-</div>
-
-    )
+        );
 }
 export default PatientDashboard

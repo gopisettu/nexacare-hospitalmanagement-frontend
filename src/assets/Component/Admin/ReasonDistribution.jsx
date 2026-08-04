@@ -9,7 +9,10 @@ import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function ReasonDistribution({ data }) {
+function ReasonDistribution({
+  title = "Reason Distribution",
+  data
+}) {
 
   const chartData = {
     labels: Object.keys(data || {}),
@@ -38,7 +41,9 @@ function ReasonDistribution({ data }) {
     <div className="card shadow border-0 rounded-4 h-100">
 
       <div className="card-header bg-white border-0">
-        <h5 className="fw-bold">Reason Distribution</h5>
+      <h5 className="fw-bold">
+    {title}
+</h5>
       </div>
 
       <div className="card-body">
@@ -64,3 +69,4 @@ function ReasonDistribution({ data }) {
 }
 
 export default ReasonDistribution;
+// git commit -m "implemented Admin Dashboard by using Chatrs by ChartJs.register Required parameter and used  MiniCard with  Boostrap Icons and get props value and set it in the cardValue, retrieved live data from DB Total Patients,Appointments,Doctors and displayed in MiniCard and used  "

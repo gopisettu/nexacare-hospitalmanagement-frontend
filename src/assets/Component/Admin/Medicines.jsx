@@ -1,10 +1,13 @@
-function Medicines({medicines}) {
+function Medicines({
+  medicines,
+  title="Medicines"
+}) {
 
     return (
       <div className="card shadow border-0 rounded-4 h-100">
   
         <div className="card-header bg-white border-0">
-          <h5 className="fw-bold">Medicines</h5>
+        <h5>{title}</h5>
         </div>
   
         <div className="card-body">

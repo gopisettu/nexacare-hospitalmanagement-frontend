@@ -1,10 +1,13 @@
-function TodayAppointments({ appointments }) {
+function TodayAppointments({
+  appointments,
+  title="Today's Appointments"
+}) {
 
   if (!appointments || appointments.length === 0) {
     return (
       <div className="card shadow border-0 rounded-4 h-100">
         <div className="card-header bg-white border-0">
-          <h5 className="fw-bold">Today's Appointments</h5>
+        <h5>{title}</h5>
         </div>
 
         <div className="card-body text-center text-muted">
@@ -70,5 +73,5 @@ function TodayAppointments({ appointments }) {
     </div>
   );
 }
-
+// git commit -m "implemented Admin Dashboard by using Chatrs by ChartJs.register Required parameter and used  MiniCard with  Boostrap Icons and get props value and set it in the cardValue, retrieved" 
 export default TodayAppointments;
