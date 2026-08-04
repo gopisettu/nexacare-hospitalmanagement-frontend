@@ -97,14 +97,14 @@ import {
     );
   }
   
-  export default function DashboardStats() {
+  export default function DashboardStats({ stats }) {
     return (
       <div className="row g-4">
   
         <div className="col-md-4">
           <MiniCard
             title="Appointments"
-            value="20"
+            value={stats.totalAppointments}
             icon="bi-calendar-check"
             color="#7c4dff"
             bg="#efe8ff"
@@ -115,7 +115,7 @@ import {
         <div className="col-md-4">
           <MiniCard
             title="Patients"
-            value="24"
+            value={stats.totalPatients}
             icon="bi-people"
             color="#ff9800"
             bg="#fff2df"
@@ -126,7 +126,7 @@ import {
         <div className="col-md-4">
           <MiniCard
             title="Doctors"
-            value="12"
+            value={stats.totalDoctors}
             icon="bi-heart-pulse"
             color="#22c55e"
             bg="#e9fff2"

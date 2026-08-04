@@ -1,149 +1,51 @@
 import DashboardCharts from "./DashboardCharts";
+import ReasonDistribution from "./ReasonDistribution";
+import TodayAppointments from "./TodayAppointments";
+import Medicines from "./Medicines";
+import { useState } from "react";
+import axios from "axios";
+
+import { useEffect } from "react";
 function AdminDashboard(){
+
+const [dashboard,setDashboard]=useState(null)
+
+
+  useEffect(() => {
+    axios.get("http://localhost:8080/api/admin/admin-dashboardAllRequiredData")
+        .then(res => setDashboard(res.data))
+        .catch(console.error);
+}, []);
+
+if (!dashboard) {
+  return <h3>Loading...</h3>;
+}
+
     return (<>
    
         <h2>Admin Dashboard</h2>
        
         <div className="container">
 
-<div className="row g-3 mb-4">
+<DashboardCharts stats={dashboard.stats}  />
 
+<div className="row">
+<div className="col-lg-4 mb-4">
+          <ReasonDistribution 
+           data={dashboard.reasonDistribution}/>
+        </div>
 
+        <div className="col-lg-4 mb-4">
+          <TodayAppointments 
+           appointments={dashboard.todayAppointments}/>
+        </div>
 
-{/* Total Patients */}
-
-<div className="col-lg col-md-4 col-sm-6">
-
-<div className="card border-0 shadow-sm h-100">
-
-<div className="card-body d-flex justify-content-between align-items-center">
-
-    <div>
-
-        <h6 className="text-muted mb-1">Total Patients</h6>
-
-        <h3 className="fw-bold text-primary">156</h3>
-
-    </div>
-
-    <div className="fs-1">👨</div>
-
+        <div className="col-lg-4 mb-4">
+          <Medicines
+           medicines={dashboard.medicines} />
+        </div>
 </div>
 
-</div>
-
-</div>
-
-
-
-{/* Active Patients */}
-
-<div className="col-lg col-md-4 col-sm-6">
-
-<div className="card border-0 shadow-sm h-100">
-
-<div className="card-body d-flex justify-content-between align-items-center">
-
-    <div>
-
-        <h6 className="text-muted mb-1">Active Patients</h6>
-
-        <h3 className="fw-bold text-success">142</h3>
-
-    </div>
-
-    <div className="fs-1">🟢</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-{/* Inactive Patients */}
-
-<div className="col-lg col-md-4 col-sm-6">
-
-<div className="card border-0 shadow-sm h-100">
-
-<div className="card-body d-flex justify-content-between align-items-center">
-
-    <div>
-
-        <h6 className="text-muted mb-1">Inactive Patients</h6>
-
-        <h3 className="fw-bold text-danger">14</h3>
-
-    </div>
-
-    <div className="fs-1">🔴</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-{/* Today's Appointments */}
-
-<div className="col-lg col-md-6 col-sm-6">
-
-<div className="card border-0 shadow-sm h-100">
-
-<div className="card-body d-flex justify-content-between align-items-center">
-
-    <div>
-
-        <h6 className="text-muted mb-1">Today's Appointments</h6>
-
-        <h3 className="fw-bold text-warning">28</h3>
-
-    </div>
-
-    <div className="fs-1">📅</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-{/* Pending Payments */}
-
-<div className="col-lg col-md-6 col-sm-6">
-
-<div className="card border-0 shadow-sm h-100">
-
-<div className="card-body d-flex justify-content-between align-items-center">
-
-    <div>
-
-        <h6 className="text-muted mb-1">Pending Payments</h6>
-
-        <h3 className="fw-bold text-info">9</h3>
-
-    </div>
-
-    <div className="fs-1">💰</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-</div>
-
-
-<DashboardCharts />
 </div>
         </>
     )

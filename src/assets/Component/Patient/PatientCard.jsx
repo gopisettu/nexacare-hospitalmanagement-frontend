@@ -9,6 +9,7 @@ function PatientCard({
     return (
         <div className="container">
         <div className="row g-4">
+           
     
             {patient.map((p) => (
     
@@ -75,8 +76,9 @@ function PatientCard({
                 </div>
     
             ))}
+            </div>
     
-        </div>
+        
     </div>
     )
 }
