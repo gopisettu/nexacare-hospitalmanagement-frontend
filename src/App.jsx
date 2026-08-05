@@ -11,6 +11,7 @@ import PatientAdmin from "./assets/Component/Admin/PatientAdmin";
 import DoctorAdmin from "./assets/Component/Admin/DoctorAdmin";
 import PatientProfile from "./assets/Component/Patient/PatientProfile";
 import Appointment from "./assets/Component/Patient/Appointment";
+import MedicineAdmin from "./assets/Component/Admin/MedicineAdmin";
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
           <Route path="/admin/patients" element={<PatientAdmin/>} />
           
           <Route path="/admin/doctors" element={<DoctorAdmin/>} />
+          <Route path="/admin/medicine" element={<MedicineAdmin/>} />
+          
           
               <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
               <Route path="/patient/dashboard" element={<PatientDashboard />} />

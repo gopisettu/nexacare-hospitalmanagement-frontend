@@ -4,7 +4,18 @@ import { getDoctorByUsername } from "../Servises/DoctorService";
 import DoctorCard from "../Doctor/DoctorCard";
 import Pagination from "../HelperComponent/Pagination";
 import DoctorModal from "../Doctor/DoctorModal";
+import { formatEnum, bloodGroupLabel} from "../HelperComponent/EnumUtility";
 
+
+import {
+  getGenders,
+  getBloodGroups,
+  getDepartments,
+  getQualifications,
+  getSpecializations
+
+} from "../Servises/EnumService";
+import DoctorForm from "../Doctor/DoctorForm";
 
 function DoctorAdmin() {
   const [doctor, setDoctor] = useState([]);
@@ -31,6 +42,21 @@ const [genders, setGenders] = useState([]);
     const [appointmentStatus, setAppointmentStatus] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState({});
 
+
+    const [qualificationFilter, setQualificationFilter] = useState("");
+
+const [feeSort, setFeeSort] = useState("");
+const [experienceSort, setExperienceSort] = useState("");
+
+const [qualifications, setQualifications] = useState([]);
+const [specializations, setSpecializations] = useState([]);
+const [departments, setDepartments] = useState([]);
+
+const [newDoctor, setNewDoctor] = useState(false);
+const [toastMessage, setToastMessage] = useState("");
+const [show, setShow] = useState(false);
+const [message, setMessage] = useState("");
+
   const uploadImage = async (doctorId) => {
     console.log(doctorId) 
     alert("doctorId-inside upload image   "+doctorId)
@@ -39,7 +65,7 @@ const [genders, setGenders] = useState([]);
       return; } 
       try { const formData = new FormData(); 
        formData.append("pImage", file); 
-       const res = await axios.put(`http://localhost:8080/api/admin/image/upload/${doctorId}`, formData );
+       const res = await axios.put(`http://localhost:8080/api/admin/doctorimage/upload/${doctorId}`, formData );
         alert("Image uploaded successfully!"); 
         console.log(res.data);
          // Refresh product list 
@@ -49,12 +75,12 @@ const [genders, setGenders] = useState([]);
          alert("Failed to upload image."); } 
        };
 
-       const onAddNewPatient=()=>{
-        setSelectedPatient({});
-        setEditPatient({});
-        setNewUser(true);
-  
-      }
+      
+      const onAddNewDoctor = () => {
+        setSelectedDoctor({});
+        setEditDoctor({});
+        setNewDoctor(true);
+      };
   const submitEditedForm=async(e)=>{
     e.preventDefault();
     try{
@@ -79,23 +105,23 @@ const [genders, setGenders] = useState([]);
     }))
   }
 
-  const deleteDoctor=async(dusername)=>{
-    try{
-      console.log("In Delete")
+  const deleteDoctor = async (dusername) => {
+    try {
+      console.log("In Delete");
       const res = await axios.put(
         `http://localhost:8080/api/executive/deActivateDoctor-ByExecutive/${dusername}`
       );
-
-      const toastLiveExample = document.getElementById('liveToast')
-      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-      toastBootstrap.show()
-    
+  
+      setToastMessage("Doctor deactivated successfully!");
+      const toastLiveExample = document.getElementById('liveToast');
+      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+      toastBootstrap.show();
+    } catch (err) {
+      console.log(err);
+      setMessage("Failed to deactivate doctor. Please try again.");
+      setShow(true);
     }
-    catch(err){
-    
-      console.log(err)
-    }
-        }
+  };
 
   async function onSelected(d) {
     const username = d.username;
@@ -112,27 +138,37 @@ const [genders, setGenders] = useState([]);
     async function getAllDoctors() {
       try {
         console.log("Inside getAllDoctors");
+        // alert("Inside getAllDoctors")
     
-        let api = `http://localhost:8080/api/doctor/get-allDoctor?page=${page}&size=${size}`;
-    
+        let api = `http://localhost:8080/api/admin/get-allDoctor?page=${page}&size=${size}`;
+
         if (searchData.trim() !== "") {
-          api += `&search=${searchData}`;
+            api += `&search=${searchData}`;
         }
-    
+        
         if (genderFilter !== "") {
-          api += `&gender=${genderFilter}`;
+          // alert("Inside Gender Filter")
+            api += `&gender=${genderFilter}`;
         }
-    
+        
         if (departmentFilter !== "") {
-          api += `&department=${departmentFilter}`;
+            api += `&department=${departmentFilter}`;
         }
-    
+        
         if (specializationFilter !== "") {
-          api += `&specialization=${specializationFilter}`;
+            api += `&specialization=${specializationFilter}`;
         }
-    
-        if (sortOption !== "") {
-          api += `&sortOption=${sortOption}`;
+        
+        if (qualificationFilter !== "") {
+            api += `&qualification=${qualificationFilter}`;
+        }
+        
+        if (feeSort !== "") {
+            api += `&feeSort=${feeSort}`;
+        }
+        
+        if (experienceSort !== "") {
+            api += `&experienceSort=${experienceSort}`;
         }
     
         console.log(api);
@@ -150,7 +186,16 @@ const [genders, setGenders] = useState([]);
     }
 
     getAllDoctors();
-  }, [page,size]);
+    loadEnums()
+  }, [page,
+    size,
+    searchData,
+  genderFilter,
+  departmentFilter,
+  specializationFilter,
+  qualificationFilter,
+  feeSort,
+  experienceSort]);
 
   const loadEnums = async () => {
 
@@ -158,31 +203,36 @@ const [genders, setGenders] = useState([]);
 
         const [
             genderRes,
-            bloodRes,
-            appointmentRes
+            departmentRes,
+            specializationRes,
+            qualificationRes
         ] = await Promise.all([
-            getGenders(),
-            getBloodGroups(),
-            getAppointmentStatus()
+          getGenders(),
+            getDepartments(),
+            getSpecializations(),
+            getQualifications()
         ]);
 
         setGenders(genderRes.data);
-        setBloodGroups(bloodRes.data);
-        setAppointmentStatus(appointmentRes.data);
+        setDepartments(departmentRes.data);
+        setSpecializations(specializationRes.data);
+        setQualifications(qualificationRes.data);
 
     } catch (err) {
-
         console.log(err);
-
     }
-  }
-  const refreshFilter = () => {
-    setSearchData("");
-    setGenderFilter("");
-    setSortOption("");
-    setBloodGroupFilter("");
-    setAppointmentFilter("");
-  }
+};
+const refreshFilter = () => {
+
+  setSearchData("");
+  setGenderFilter("");
+  setDepartmentFilter("");
+  setSpecializationFilter("");
+  setQualificationFilter("");
+
+  setFeeSort("");
+  setExperienceSort("");
+};
   const getGenderFilter = (e) => {
     setGenderFilter(e.target.value);
 };
@@ -230,7 +280,7 @@ const getBloodGroupFilter = (e) => {
     value={genderFilter}
     onChange={getGenderFilter}
 >
-    <option value="">All Patients</option>
+    <option value="">All Doctor</option>
 
     {genders.map((gender) => (
         <option
@@ -243,26 +293,62 @@ const getBloodGroupFilter = (e) => {
 
 </select>
             </div>
-
-            {/* Appointment Filter */}
+{/* Specilization */}
             <div className="col-lg-2 col-md-6">
-            <select
-    className="form-select"
-    value={appointmentFilter}
-    onChange={(e) => setAppointmentFilter(e.target.value)}
->
-    <option value="">Appointments</option>
+    <select
+        className="form-select"
+        value={specializationFilter}
+        onChange={(e) => setSpecializationFilter(e.target.value)}
+    >
+        <option value="">Specialization</option>
 
-    {appointmentStatus.map((status) => (
-        <option
-            key={status}
-            value={status}
-        >
-            {formatEnum(status)}
-        </option>
-    ))}
+        {specializations.map((sp) => (
+            <option key={sp} value={sp}>
+                {formatEnum(sp)}
+            </option>
+        ))}
+    </select>
+</div>
+{/* Qualification */}
+<div className="col-lg-2 col-md-6">
+    <select
+        className="form-select"
+        value={qualificationFilter}
+        onChange={(e) => setQualificationFilter(e.target.value)}
+    >
+        <option value="">Qualification</option>
 
-</select>
+        {qualifications.map((q) => (
+            <option key={q} value={q}>
+                {formatEnum(q)}
+            </option>
+        ))}
+    </select>
+</div>
+{/* Consultant Fee */}
+<div className="col-lg-2 col-md-6">
+    <select
+        className="form-select"
+        value={feeSort}
+        onChange={(e) => setFeeSort(e.target.value)}
+    >
+        <option value="">Consultant Fee</option>
+        <option value="LOW">Low → High</option>
+        <option value="HIGH">High → Low</option>
+    </select>
+</div>
+
+{/* Experience Sort */}
+<div className="col-lg-2 col-md-6">
+    <select
+        className="form-select"
+        value={experienceSort}
+        onChange={(e) => setExperienceSort(e.target.value)}
+    >
+        <option value="">Experience</option>
+        <option value="MIN">Low → High</option>
+        <option value="MAX">High → Low</option>
+    </select>
 </div>
 
             {/* Sort */}
@@ -310,15 +396,16 @@ const getBloodGroupFilter = (e) => {
 
             {/* Add */}
             <div className="col-lg-2 col-md-6">
-                <button
-                    className="btn btn-success w-100"
-                    data-bs-toggle="modal"
-                    data-bs-target="#exampleModal"
-                    onClick={onAddNewPatient}
-                >
-                    + Add Patient
-                </button>
+            <button
+  className="btn btn-success w-100"
+  data-bs-toggle="modal"
+  data-bs-target="#exampleModal"
+  onClick={onAddNewDoctor}
+>
+  + Add Doctor
+</button>
             </div>
+           
 
             {/* Refresh */}
             <div className="col-lg-2 col-md-6">
@@ -350,51 +437,108 @@ const getBloodGroupFilter = (e) => {
 </div>
       </div>
 
-      <div className="row">
-      {doctor.map((d) => (
-    <DoctorCard
-      key={d.id}
-      doctor={d}
-      onSelected={onSelected}
-      selectedFiles={selectedFiles}
-      setSelectedFiles={setSelectedFiles}
-      uploadImage={uploadImage}
-    />
-  ))}
-        {/* Pagination */}
-        <Pagination 
-  page={page}
-  setPage={setPage}/>
+      <div className="container">
+  <div className="row g-4">
+    {doctor.map((doctor) => (
+      <DoctorCard
+        key={doctor.id}
+        doctor={doctor}
+        onSelected={onSelected}
+        selectedFiles={selectedFiles}
+        setSelectedFiles={setSelectedFiles}
+        uploadImage={uploadImage}
+      />
+    ))}
+  </div>
 
-        {/* Modal */}
-        <DoctorModal
-    editDoctor={editDoctor}
-    handleChange={handleChange}
-    submitEditedForm={submitEditedForm}
-    deleteDoctor={deleteDoctor}
-    selectedDoctor={selectedDoctor}
-/>
-
-        
-         
-        
-
-        
-{/* Toast */}
-<div className="position-fixed top-0 start-50 translate-middle-x" style={{ zIndex: 1080 }}>
-  <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div className="toast-header">
-    
-      <strong className="me-auto">Notification </strong>
-      <small>few mins ago</small>
-      <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div className="toast-body">
-     Doctor: {selectedDoctor.username} is Deleted SuccessFully
+  {/* Pagination */}
+  <Pagination
+    page={page}
+    setPage={setPage}
+  />
+ <div className="row">
+  {/* Modal */}
+  <div className="modal fade" id="exampleModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div className="modal-dialog">
+    <div className="modal-content">
+      <div className="modal-header">
+        <h1 className="modal-title fs-5" id="exampleModalLabel">
+          {newDoctor ? "Add Doctor" : "Doctor Details"}
+        </h1>
+        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div className="modal-body">
+        <DoctorForm
+          editDoctor={editDoctor}
+          handleChange={handleChange}
+          submitEditedForm={submitEditedForm}
+          selectedDoctor={selectedDoctor}
+          newDoctor={newDoctor}
+        />
+      </div>
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-danger"
+          id="liveToastBtn"
+          onClick={() => deleteDoctor(selectedDoctor.username)}
+        >
+          <i className="bi bi-trash-fill"></i>
+        </button>
+      </div>
     </div>
   </div>
 </div>
-      </div>
+{/* end modal  */}
+
+
+
+  {/* Toast */}
+  <div className="position-fixed top-0 start-0 p-3" style={{ zIndex: 1080 }}>
+  <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div className="toast-header">
+      <strong className="me-auto">Notification</strong>
+      <small>just now</small>
+      <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div className="toast-body">
+      {toastMessage}
+    </div>
+  </div>
+</div>
+{/* toaster end */}
+
+
+
+ {/* Form Validation Error */}
+ {show && (
+  <div
+    className="toast show position-fixed top-0 end-0 m-3"
+    style={{ zIndex: 1055, minWidth: "320px" }}
+  >
+    <div className="toast-header bg-danger text-white">
+      <strong className="me-auto">Error</strong>
+      <button
+        type="button"
+        className="btn-close btn-close-white"
+        onClick={() => setShow(false)}
+      ></button>
+    </div>
+    <div className="toast-body">
+      {message}
+    </div>
+    <div className="toast-footer p-2 text-end">
+      <button
+        className="btn btn-secondary btn-sm"
+        onClick={() => setShow(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+</div>
+    </div>
     </div>
   );
 }

@@ -13,3 +13,9 @@ export const getAppointmentStatus = () =>
 
 export const getPaymentStatus = () =>
     axios.get(`${BASE_URL}/payment-status`);
+export const getDepartments=()=> axios.get(`${BASE_URL}/departments`);
+
+ export const getSpecializations=()=>axios.get(`${BASE_URL}/specializations`);
+ export const getQualifications=()=>axios.get(`${BASE_URL}/qualifications`);
+
+    
