@@ -10,6 +10,7 @@ import {
   getBloodGroups,
   getAppointmentStatus
 } from "../Servises/EnumService";
+import PracticeForm from "./PracticeForm";
 function PatientAdmin(){
 
   const [message,setMessage]=useState('')
@@ -32,6 +33,24 @@ function PatientAdmin(){
     const [appointmentStatus, setAppointmentStatus] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState({});
     const [toastMessage, setToastMessage] = useState("");
+
+    
+    const getErrorMessage = (err) => {
+
+      if (err.response?.data?.message) {
+          return err.response.data.message;
+      }
+  
+      if (err.response?.status === 500) {
+          return "Internal Server Error.";
+      }
+  
+      if (err.code === "ERR_NETWORK") {
+          return "Cannot connect to server.";
+      }
+  
+      return "Something went wrong.";
+  };
 
 const showToast = (msg) => {
     setToastMessage(msg);
@@ -83,17 +102,17 @@ const showToast = (msg) => {
         let res;
 
         if (newUser) {
-            res = await axios.post(
-                "http://localhost:8080/api/admin/addPatient-ByAdmin",
-                editPatient
-            );
+          const res = await axios.post(
+            "http://localhost:8080/api/admin/addDoctor-ByAdmin",
+            editDoctor
+          );
             showToast("Patient added successfully.");
 
         } else {
-            res = await axios.put(
-                `http://localhost:8080/api/patient/update-patientProfile/${selectedPatient.username}`,
-                editPatient
-            );
+          const res = await axios.put(
+            `http://localhost:8080/api/admin/updateDoctor-ByAdmin/${selectedDoctor.username}`,
+            editDoctor
+          );
             showToast("Patient updated successfully.");
         }
 
@@ -384,6 +403,7 @@ const showToast = (msg) => {
     </div>
 </div>
 
+
               {/* PatientCard */}
               <PatientCard
     patient={patient}
@@ -449,45 +469,17 @@ const showToast = (msg) => {
     </div>
   </div>
 </div>
+{/* {toast end} */}
 
 </div>
 
- {/* Form Validation Error */}
-{show && (
-  <div
-    className="toast show position-fixed top-0 end-0 m-3"
-    style={{ zIndex: 1055, minWidth: "320px" }}
-  >
-    <div className="toast-header bg-danger text-white">
-      <strong className="me-auto">Error</strong>
-
-      {/* Close (X) Button */}
-      <button
-        type="button"
-        className="btn-close btn-close-white"
-        onClick={() => setShow(false)}
-      ></button>
-    </div>
-
-    <div className="toast-body">
-      {message}
-    </div>
-
-    <div className="toast-footer p-2 text-end">
-      <button
-        className="btn btn-secondary btn-sm"
-        onClick={() => setShow(false)}
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
- 
 
 
 
+<PracticeForm/>
         </div>
+
+        
     )
 }
 export default PatientAdmin

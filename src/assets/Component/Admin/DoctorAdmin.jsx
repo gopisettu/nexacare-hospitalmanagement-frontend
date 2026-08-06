@@ -7,15 +7,15 @@ import DoctorModal from "../Doctor/DoctorModal";
 import { formatEnum, bloodGroupLabel} from "../HelperComponent/EnumUtility";
 
 
+
+import DoctorForm from "../Doctor/DoctorForm";
+
 import {
   getGenders,
-  getBloodGroups,
   getDepartments,
+  getSpecializations,
   getQualifications,
-  getSpecializations
-
 } from "../Servises/EnumService";
-import DoctorForm from "../Doctor/DoctorForm";
 
 function DoctorAdmin() {
   const [doctor, setDoctor] = useState([]);
@@ -24,6 +24,10 @@ function DoctorAdmin() {
 
   const [page,setPage]=useState(0)
   const[size,setSize]=useState(8)
+  const [genders, setGenders] = useState([]);
+const [departments, setDepartments] = useState([]);
+const [specializations, setSpecializations] = useState([]);
+const [qualifications, setQualifications] = useState([]);
 
   
 
@@ -37,7 +41,7 @@ const [appointmentFilter, setAppointmentFilter] = useState("");
 const [bloodGroupFilter, setBloodGroupFilter] = useState("");
 
 
-const [genders, setGenders] = useState([]);
+
     const [bloodGroups, setBloodGroups] = useState([]);
     const [appointmentStatus, setAppointmentStatus] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState({});
@@ -48,9 +52,9 @@ const [genders, setGenders] = useState([]);
 const [feeSort, setFeeSort] = useState("");
 const [experienceSort, setExperienceSort] = useState("");
 
-const [qualifications, setQualifications] = useState([]);
-const [specializations, setSpecializations] = useState([]);
-const [departments, setDepartments] = useState([]);
+
+DoctorForm
+
 
 const [newDoctor, setNewDoctor] = useState(false);
 const [toastMessage, setToastMessage] = useState("");
@@ -95,7 +99,29 @@ const [message, setMessage] = useState("");
       console.log(err)
     }
   }
-
+  const loadEnums = async () => {
+    try {
+      const [
+        genderRes,
+        departmentRes,
+        specializationRes,
+        qualificationRes,
+      ] = await Promise.all([
+        getGenders(),
+        getDepartments(),
+        getSpecializations(),
+        getQualifications(),
+      ]);
+  
+      setGenders(genderRes.data);
+      setDepartments(departmentRes.data);
+      setSpecializations(specializationRes.data);
+      setQualifications(qualificationRes.data);
+  
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const handleChange=(e)=>{
     e.preventDefault();
     const { name, value } = e.target;
@@ -133,6 +159,9 @@ const [message, setMessage] = useState("");
     setSelectedDoctor(doctor);
     setEditDoctor(doctor);
   }
+  useEffect(() => {
+    loadEnums();
+  }, []);
 
   useEffect(() => {
     async function getAllDoctors() {
@@ -171,6 +200,7 @@ const [message, setMessage] = useState("");
             api += `&experienceSort=${experienceSort}`;
         }
     
+        // Add blood group filter api
         console.log(api);
     
         const res = await axios.get(api);
@@ -186,7 +216,7 @@ const [message, setMessage] = useState("");
     }
 
     getAllDoctors();
-    loadEnums()
+   
   }, [page,
     size,
     searchData,
@@ -197,31 +227,6 @@ const [message, setMessage] = useState("");
   feeSort,
   experienceSort]);
 
-  const loadEnums = async () => {
-
-    try {
-
-        const [
-            genderRes,
-            departmentRes,
-            specializationRes,
-            qualificationRes
-        ] = await Promise.all([
-          getGenders(),
-            getDepartments(),
-            getSpecializations(),
-            getQualifications()
-        ]);
-
-        setGenders(genderRes.data);
-        setDepartments(departmentRes.data);
-        setSpecializations(specializationRes.data);
-        setQualifications(qualificationRes.data);
-
-    } catch (err) {
-        console.log(err);
-    }
-};
 const refreshFilter = () => {
 
   setSearchData("");
@@ -280,34 +285,14 @@ const getBloodGroupFilter = (e) => {
     value={genderFilter}
     onChange={getGenderFilter}
 >
-    <option value="">All Doctor</option>
+    <option value="">Gender</option>
 
     {genders.map((gender) => (
-        <option
-            key={gender}
-            value={gender}
-        >
+        <option key={gender} value={gender}>
             {formatEnum(gender)}
         </option>
     ))}
-
 </select>
-            </div>
-{/* Specilization */}
-            <div className="col-lg-2 col-md-6">
-    <select
-        className="form-select"
-        value={specializationFilter}
-        onChange={(e) => setSpecializationFilter(e.target.value)}
-    >
-        <option value="">Specialization</option>
-
-        {specializations.map((sp) => (
-            <option key={sp} value={sp}>
-                {formatEnum(sp)}
-            </option>
-        ))}
-    </select>
 </div>
 {/* Qualification */}
 <div className="col-lg-2 col-md-6">
@@ -351,38 +336,8 @@ const getBloodGroupFilter = (e) => {
     </select>
 </div>
 
-            {/* Sort */}
-            <div className="col-lg-2 col-md-6">
-            <select
-    className="form-select"
-    value={sortOption}
-    onChange={getSortOption}
->
-                    <option value="">Sort By Age</option>
-                    <option value="YOUNG">Young</option>
-                    <option value="OLD">Old</option>
-
-                </select>
-            </div>
-            <div className="col-lg-2 col-md-6">
-            <select
-    className="form-select"
-    value={bloodGroupFilter}
-    onChange={getBloodGroupFilter}
->
-    <option value="">Blood Group</option>
-
-    {bloodGroups.map((group) => (
-        <option
-            key={group}
-            value={group}
-        >
-            {bloodGroupLabel[group]}
-        </option>
-    ))}
-
-</select>
-            </div>
+           
+            
 
         </div>
 
@@ -399,7 +354,7 @@ const getBloodGroupFilter = (e) => {
             <button
   className="btn btn-success w-100"
   data-bs-toggle="modal"
-  data-bs-target="#exampleModal"
+  data-bs-target="#doctorModal"
   onClick={onAddNewDoctor}
 >
   + Add Doctor
@@ -458,7 +413,7 @@ const getBloodGroupFilter = (e) => {
   />
  <div className="row">
   {/* Modal */}
-  <div className="modal fade" id="exampleModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div className="modal fade" id="doctorModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div className="modal-dialog">
     <div className="modal-content">
       <div className="modal-header">
@@ -468,13 +423,18 @@ const getBloodGroupFilter = (e) => {
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div className="modal-body">
-        <DoctorForm
-          editDoctor={editDoctor}
-          handleChange={handleChange}
-          submitEditedForm={submitEditedForm}
-          selectedDoctor={selectedDoctor}
-          newDoctor={newDoctor}
-        />
+      <DoctorForm
+    editDoctor={editDoctor}
+    handleChange={handleChange}
+    submitEditedForm={submitEditedForm}
+    selectedDoctor={selectedDoctor}
+    newDoctor={newDoctor}
+
+    genders={genders}
+    departments={departments}
+    specializations={specializations}
+    qualifications={qualifications}
+/>
       </div>
       <div className="modal-footer">
         <button

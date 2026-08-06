@@ -1,10 +1,14 @@
 function DoctorForm({
-    editDoctor,
-    handleChange,
-    submitEditedForm,
-    selectedDoctor,
-    newDoctor,
+  editDoctor,
+  handleChange,
+  submitEditedForm,
+  selectedDoctor,
+  newDoctor,
 
+  genders = [],
+  departments = [],
+  specializations = [],
+  qualifications = []
 
   }) {
     return (
@@ -63,16 +67,19 @@ function DoctorForm({
           <div className="col-md-6 mb-3">
             <label className="form-label">Gender</label>
             <select
-              className="form-select"
-              name="gender"
-              value={editDoctor.gender ?? ""}
-              onChange={handleChange}
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
+  className="form-select"
+  name="gender"
+  value={editDoctor.gender ?? ""}
+  onChange={handleChange}
+>
+  <option value="">Select Gender</option>
+
+  {genders.map((gender) => (
+    <option key={gender} value={gender}>
+      {gender.replaceAll("_", " ")}
+    </option>
+  ))}
+</select>
           </div>
   
           {/* Phone */}
@@ -113,38 +120,57 @@ function DoctorForm({
   
           {/* Qualification */}
           <div className="col-md-6 mb-3">
-            <label className="form-label">Qualification</label>
-            <input
-              type="text"
-              className="form-control"
-              name="qualification"
-              value={editDoctor.qualification ?? ""}
-              onChange={handleChange}
-            />
+            
+            <select
+  className="form-select"
+  name="qualification"
+  value={editDoctor.qualification ?? ""}
+  onChange={handleChange}
+>
+  <option value="">Select Qualification</option>
+
+  {qualifications.map((qualification) => (
+    <option key={qualification} value={qualification}>
+      {qualification.replaceAll("_", " ")}
+    </option>
+  ))}
+</select>
           </div>
   
           {/* Department */}
           <div className="col-md-6 mb-3">
-            <label className="form-label">Department</label>
-            <input
-              type="text"
-              className="form-control"
-              name="department"
-              value={editDoctor.department ?? ""}
-              onChange={handleChange}
-            />
+          <select
+  className="form-select"
+  name="department"
+  value={editDoctor.department ?? ""}
+  onChange={handleChange}
+>
+  <option value="">Select Department</option>
+
+  {departments.map((department) => (
+    <option key={department} value={department}>
+      {department.replaceAll("_", " ")}
+    </option>
+  ))}
+</select>
           </div>
   
           {/* Specialization */}
           <div className="col-md-6 mb-3">
-            <label className="form-label">Specialization</label>
-            <input
-              type="text"
-              className="form-control"
-              name="specialization"
-              value={editDoctor.specialization ?? ""}
-              onChange={handleChange}
-            />
+          <select
+  className="form-select"
+  name="specialization"
+  value={editDoctor.specialization ?? ""}
+  onChange={handleChange}
+>
+  <option value="">Select Specialization</option>
+
+  {specializations.map((specialization) => (
+    <option key={specialization} value={specialization}>
+      {specialization.replaceAll("_", " ")}
+    </option>
+  ))}
+</select>
           </div>
   
           {/* Experience */}
