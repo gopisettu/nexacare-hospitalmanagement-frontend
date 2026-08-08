@@ -38,6 +38,19 @@ function DoctorForm({
               disabled={!newDoctor}
             />
           </div>
+         
+         <div className="col-md-6 mb-3">
+         <label className="form-label">TemporaryPassword</label>
+         <input
+           type="text"
+           className="form-control"
+           name="password"
+           value={editDoctor.password ?? ""}
+           onChange={handleChange}
+           disabled={!newDoctor}
+         />
+       </div>
+    
   
           {/* First Name */}
           <div className="col-md-6 mb-3">

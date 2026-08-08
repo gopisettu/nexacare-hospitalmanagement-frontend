@@ -11,6 +11,7 @@ import {
   getAppointmentStatus
 } from "../Servises/EnumService";
 import PracticeForm from "./PracticeForm";
+import editPatient from "../Patient/PatientForm";
 function PatientAdmin(){
 
   const [message,setMessage]=useState('')
@@ -95,36 +96,43 @@ const showToast = (msg) => {
 
     }
 
-    const submitEditedForm = async (e) => {
+   const submitEditedForm = async (e) => {
     e.preventDefault();
 
     try {
-        let res;
-
+        // Check if editPatient is null/undefined OR all fields are empty
+    if (
+        !editPatient ||
+        Object.values(editPatient).every(
+            (value) => value === null || value === undefined || value === ""
+        )
+    ) {
+        showToast("Please fill the form.");
+        return;
+    }
         if (newUser) {
-          const res = await axios.post(
-            "http://localhost:8080/api/admin/addDoctor-ByAdmin",
-            editDoctor
-          );
+
+            await axios.post(
+                "http://localhost:8080/api/admin/addPatient-ByAdmin",
+                editPatient
+            );
             showToast("Patient added successfully.");
 
         } else {
-          const res = await axios.put(
-            `http://localhost:8080/api/admin/updateDoctor-ByAdmin/${selectedDoctor.username}`,
-            editDoctor
-          );
+            const res = await axios.put(
+                `http://localhost:8080/api/admin/update-patientProfile/${selectedPatient.username}`,
+                editPatient
+            );
+            setSelectedPatient(res.data);
             showToast("Patient updated successfully.");
         }
 
-        console.log(res.data);
-        setSelectedPatient(res.data);
         getAllPatients(); // refresh list to reflect the change
 
-    } catch (err) {
-        console.log(err);
-        setMessage(err.response?.data?.message || "Something went wrong.");
-        setShow(true);
-    }
+   } catch (err) {
+    console.log(err);
+    showToast(getErrorMessage(err));
+}
 };
     const handleChange=(e)=>{
       e.preventDefault();

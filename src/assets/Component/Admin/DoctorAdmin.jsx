@@ -53,13 +53,34 @@ const [feeSort, setFeeSort] = useState("");
 const [experienceSort, setExperienceSort] = useState("");
 
 
-DoctorForm
 
 
 const [newDoctor, setNewDoctor] = useState(false);
 const [toastMessage, setToastMessage] = useState("");
 const [show, setShow] = useState(false);
 const [message, setMessage] = useState("");
+const [toastType, setToastType] = useState("success"); // NEW
+
+const getErrorMessage = (err) => {
+    if (err.response?.data?.message) {
+        return err.response.data.message;
+    }
+    if (err.response?.status === 500) {
+        return "Internal Server Error.";
+    }
+    if (err.code === "ERR_NETWORK") {
+        return "Cannot connect to server.";
+    }
+    return "Something went wrong.";
+};
+
+const showToast = (msg, type = "success") => {
+    setToastMessage(msg);
+    setToastType(type);
+    const toastEl = document.getElementById('liveToast');
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastEl);
+    toastBootstrap.show();
+};   
 
   const uploadImage = async (doctorId) => {
     console.log(doctorId) 
@@ -72,8 +93,7 @@ const [message, setMessage] = useState("");
        const res = await axios.put(`http://localhost:8080/api/admin/doctorimage/upload/${doctorId}`, formData );
         alert("Image uploaded successfully!"); 
         console.log(res.data);
-         // Refresh product list 
-         // getAllProducts();
+         getAllDoctors();
         } catch (err) 
         { console.error("Upload failed:", err);
          alert("Failed to upload image."); } 
@@ -85,20 +105,33 @@ const [message, setMessage] = useState("");
         setEditDoctor({});
         setNewDoctor(true);
       };
-  const submitEditedForm=async(e)=>{
+ 
+const submitEditedForm = async (e) => {
     e.preventDefault();
-    try{
-      const res = await axios.put(
-        `http://localhost:8080/api/doctor/update-doctorProfile/${selectedDoctor.username}`,editDoctor
-      );
-      console.log(res.data);
-      setSelectedDoctor(res.data);
-      setEditDoctor(res.data);
+    try {
+        if (newDoctor) {
+            await axios.post(
+                "http://localhost:8080/api/admin/addDoctor-ByAdmin",
+                editDoctor
+            );
+            showToast("Doctor added successfully.");
+        } else {
+            const res = await axios.put(
+                `http://localhost:8080/api/admin/updateDoctor-ByAdmin/${selectedDoctor.username}`,
+                editDoctor
+            );
+            setSelectedDoctor(res.data);
+            setEditDoctor(res.data);
+            showToast("Doctor updated successfully.");
+        }
+
+        // refresh list — you don't currently have a reusable getAllDoctors()
+        // outside the useEffect; see note below
+    } catch (err) {
+        console.log(err);
+        showToast(getErrorMessage(err), "error");
     }
-    catch(err){
-      console.log(err)
-    }
-  }
+};
   const loadEnums = async () => {
     try {
       const [
@@ -163,7 +196,6 @@ const [message, setMessage] = useState("");
     loadEnums();
   }, []);
 
-  useEffect(() => {
     async function getAllDoctors() {
       try {
         console.log("Inside getAllDoctors");
@@ -214,6 +246,9 @@ const [message, setMessage] = useState("");
         console.error(err);
       }
     }
+
+  useEffect(() => {
+  
 
     getAllDoctors();
    
@@ -452,9 +487,8 @@ const getBloodGroupFilter = (e) => {
 {/* end modal  */}
 
 
-
-  {/* Toast */}
-  <div className="position-fixed top-0 start-0 p-3" style={{ zIndex: 1080 }}>
+{/* Toast */}
+<div className="position-fixed top-0 start-0 p-3" style={{ zIndex: 1080 }}>
   <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div className="toast-header">
       <strong className="me-auto">Notification</strong>
@@ -470,33 +504,7 @@ const getBloodGroupFilter = (e) => {
 
 
 
- {/* Form Validation Error */}
- {show && (
-  <div
-    className="toast show position-fixed top-0 end-0 m-3"
-    style={{ zIndex: 1055, minWidth: "320px" }}
-  >
-    <div className="toast-header bg-danger text-white">
-      <strong className="me-auto">Error</strong>
-      <button
-        type="button"
-        className="btn-close btn-close-white"
-        onClick={() => setShow(false)}
-      ></button>
-    </div>
-    <div className="toast-body">
-      {message}
-    </div>
-    <div className="toast-footer p-2 text-end">
-      <button
-        className="btn btn-secondary btn-sm"
-        onClick={() => setShow(false)}
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
+ 
 </div>
     </div>
     </div>
