@@ -28,3 +28,6 @@ export const getBatchStatus = () =>
  
 export const getMedicineForms = () =>
     axios.get(`${BASE_URL}/medicine-forms`);
+
+export const getReasons = () =>
+    axios.get(`${BASE_URL}/reasons`);
