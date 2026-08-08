@@ -502,7 +502,7 @@ function AppointmentMiniCard({
     </div>
 
   );
-}
+} 
 
 
 export default AppointmentMiniCard;
