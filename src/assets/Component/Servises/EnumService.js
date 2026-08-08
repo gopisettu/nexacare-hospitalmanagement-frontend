@@ -19,3 +19,12 @@ export const getDepartments=()=> axios.get(`${BASE_URL}/departments`);
  export const getQualifications=()=>axios.get(`${BASE_URL}/qualifications`);
 
     
+// Medicine-related enums — used by MedicineAdmin / MedicineForm
+export const getMedicineCategories = () =>
+    axios.get(`${BASE_URL}/medicine-categories`);
+ 
+export const getBatchStatus = () =>
+    axios.get(`${BASE_URL}/batch-status`);
+ 
+export const getMedicineForms = () =>
+    axios.get(`${BASE_URL}/medicine-forms`);

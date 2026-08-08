@@ -24,7 +24,7 @@ const menu = {
 };
 
 function Sidebar() {
-  const items = menu["ADMIN"] || [];
+  const items = menu["PATIENT"] || [];
 
   return (
     <aside className="bg-dark text-white p-3" style={{ width: "220px" }}>
